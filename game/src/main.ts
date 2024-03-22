@@ -1,5 +1,5 @@
 import { Figure } from './figure';
-import { Application, FederatedPointerEvent, Graphics } from 'pixi.js';
+import { Application, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
 import { grid64, randomShape } from './utils';
 
 console.log('Game JS loading.');
@@ -105,9 +105,9 @@ const checkLineCompletion = () => {
          * @param node 
          */
         const searchAndDestroy = (
-          node: any,
+          node: DisplayObject,
           inverse?:boolean
-        ): any | undefined  => {
+        ): DisplayObject | undefined  => {
           const bounds = node.getBounds();
           let axis = bounds.y - ypadding;
           if (inverse) axis = bounds.x - xpadding;

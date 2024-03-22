@@ -1,4 +1,4 @@
-import { FigureNode, Shape } from "./types";
+import type { FigureNode, Shape } from "./types";
 
 // https://tetris.wiki/Tetromino
 // I O T S Z J L
@@ -66,3 +66,46 @@ export const randomShape = (): Shape => {
 }
 
 export const grid64 = [0, 32, 64, 96, 128, 160, 192, 224, 256, 288];
+
+
+export const shapeMovementCompensator = (shape: Shape, propx: number, propy: number): { x: number, y: number } => {
+  let x = propx;
+  let y = propy;
+  switch (shape) {
+    case 'O':
+      x -= 168;
+      y -= 128
+      break;
+    case 'I':
+      x -= 64;
+      y -= 198;
+      break;
+    case 'I2':
+      x -= 240;
+      y -= 28;
+      break;
+    case 'T':
+      x -= 128;
+      y -= 128
+      break;
+    case 'S':
+      x -= 128;
+      y -= 128;
+      break;
+    case 'Z':
+      x -= 128;
+      y -= 128
+      break;
+    case 'J':
+      x -= 128;
+      y -= 150;
+      break;
+    case 'L':
+      x -= 128;
+      y -= 150;
+      break;
+    default:
+      break;
+  }
+  return { x, y };
+}

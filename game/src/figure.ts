@@ -1,7 +1,7 @@
 import { Application, Container, FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { DisplayObject } from 'pixi.js';
 import type { FigureNode, Shape } from './types';
-import { grid64, shapes } from './utils';
+import { grid64, shapeMovementCompensator, shapes } from './utils';
 
 export class Figure implements Figure {
   color: number;
@@ -77,9 +77,14 @@ export class Figure implements Figure {
     const { container } = this;
     container.alpha = 0.5;
 
-    // TODO: Improve. Cannot get smooth movement.
-    const x = (e.clientX - (container.width*2.25));
-    const y = (e.clientY - (container.height*2.25));
+    // TODO: There has to be a better way
+    // Check figure types and compensate for mystery padding
+    const { x, y } = shapeMovementCompensator(
+      this.shape,
+      e.clientX - (container.width*2.25),
+      e.clientY - (container.height*2.25),
+    );
+
     this.setPos(x, y);
   }
 
@@ -98,48 +103,34 @@ export class Figure implements Figure {
    * @returns true if the figure was placed on the grid, false if not.
   */
   stopMoving(figures: Figure[]): boolean { 
-    // Calculate closest symetrical grid pos
-    const gridSnap = this.snapFigureToGrid();
-
-    // Snap to closest grid cells possible
-    this.container.x = gridSnap.x;
-    this.container.y = gridSnap.y;
-    this.container.alpha = 1;
-
-    // Check for out of bounds (outside grid)
-    // const xOOB = 
-    //   this.container.x > grid64[0] || 
-    //   this.container.x <= grid64[grid64.length-1];
-    // const yOOB = 
-    // this.container.y > grid64[0] || 
-    // this.container.y <= grid64[grid64.length-1];
-    // if (xOOB || yOOB) {
-    //   this.container.x = 0;
-    //   this.container.y = -192;
-    //   return false;
-    // }
-
-    const figureBot = this.container.y + this.container.height;
-    const gridTop = grid64[0];
-    const yOOB = figureBot < gridTop;
-
-    if (yOOB) {
-      this.container.x = 0;
-      this.container.y = -192;
+    // Reset pos and return, if outside grid
+    if (this.isOutsideGrid()) {
+      this.resetPost();
       return false;
     }
 
     // Check for collision with other figures, after adjusting for grid snap
     const collision = this.collision(figures);
     if (collision) {
-      this.container.x = 0;
-      this.container.y = -192;
+      this.resetPost();
       return false;
     }
-    else {
-      this.container.eventMode = 'none';
-      return true;
-    }
+
+    // Snap figure in place inside grid
+    const gridSnap = this.snapFigureToGrid();
+    this.container.x = gridSnap.x;
+    this.container.y = gridSnap.y; 
+
+    // Plced on grid, was moved.
+    console.log('Placed on grid');
+    this.container.alpha = 1;
+    this.container.eventMode = 'none';
+    return true;
+  }
+
+  resetPost = () => {
+    this.container.x = 0;
+    this.container.y = -192;
   }
 
   collision(figures: Figure[]): boolean {
@@ -163,9 +154,20 @@ export class Figure implements Figure {
     });
   }
 
+  isOutsideGrid = (): boolean => {
+    const aboveGrid = this.container.y < grid64[0]-15;
+    const belowGrid = this.container.y > grid64[grid64.length-1]+15;
+    const leftOfGrid = this.container.x < grid64[0]-15;
+    const rightOfGrid = this.container.x > grid64[grid64.length-1]+15;
+
+    if (aboveGrid || belowGrid || leftOfGrid || rightOfGrid) {
+      return true;
+    }
+    return false;
+  }
+
   /*
     Return coordinates for closest 'perfect symetrical' position in grid.
-    If the figure is outside the grid, snap it back to the grid as closest possible pos.
   */
   snapFigureToGrid = (): { x: number, y: number } => {
     let closestX = this.container.x;
@@ -187,20 +189,6 @@ export class Figure implements Figure {
         const prevDiff = Math.abs(prev - this.container.y);
         return (currDiff < prevDiff ? curr : prev);
       });
-    }
-
-    /* Check if figure is out of bounds (partially out of the grid) and adjust */
-
-    const numHorizontalCells = Math.round(this.container.width / 64);
-    const numVerticalCells = Math.round(this.container.height / 64);
-
-    const maxX = this.container.x + this.container.width/2 ;
-    if (maxX > grid64[grid64.length - 1]) {
-      closestX = grid64[grid64.length - (numHorizontalCells)];
-    }
-    const maxY = this.container.y + this.container.height/2;
-    if (maxY > grid64[grid64.length - 1]) {
-      closestY = grid64[grid64.length - (numVerticalCells)];
     }
 
     return { x: closestX, y: closestY};
