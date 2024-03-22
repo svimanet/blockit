@@ -1,0 +1,24 @@
+{
+  "name": "bun-htmx",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "pixi.js": "^8.0.2"
+  },
+  "scripts": {
+    "build:game": "bun build game/src/main.ts --outdir game/gamedist",
+    "watch:game": "bun --watch build game/src/main.ts --outdir game/gamedist",
+    "watch:server": "bun run --hot server/src/server.ts",
+    "build:docker": "bun run build && docker build -t bun-pixi-game ."
+  },
+  "workspaces": [
+    "game",
+    "server"
+  ]
+}

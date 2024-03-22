@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  background-color: gray;
+}
+
+header {
+  max-width: 800px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+  color: white;
+}
+
+h1 {
+  text-align: center;
+  margin: 0;
+}
+
+#score-form {
+  width: 20rem;
+  margin: 0 auto;
+  height:2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  bordeR: 1px solid black;
+}
+
+form input {
+  width: 5rem;
+  height: 1rem;
+  margin: auto 0;
+}
+
+form button {
+  height: 1.25rem;
+  margin: auto 0;
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="./htmx.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <title>htmx test</title>
+  </head>
+  <body>
+
+    <header>
+      <h1>BlockIT</h1>
+      <nav>
+        <button id="hiscores-button" hx-target="#hiscores-section" hx-get="hiscores">Toggle Hiscores</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="game-section">
+        <form hx-post="api/hiscore" id="score-form" name="score form">
+          <input name="name" type="name" autocomplete="name" required />
+          <input name="score" type="number" required />
+          <button type="submit" value>submit</button>
+        </form>
+
+        <button hx-get="game" hx-swap="outerHTML">load game</button>
+      </section>
+
+      <section id="hiscores-section"></section>
+    </main>
+
+  </body>
+</html>
