@@ -41,8 +41,8 @@ Bun.serve({
         /* game.js appends to #game */
         const gameContainer = (`
           <div id="game-container">
-            <div id="game"/>
             ${gameScript}
+            <div id="game"/>
           </div>
         `);
 
@@ -114,3 +114,6 @@ Bun.serve({
     return new Response("Not found", { status: 404 });
   },
 });
+
+
+console.log("Server running at http://localhost:3000  ");

@@ -1,5 +1,6 @@
 {
   "name": "bun-htmx",
+  "authoe": "svimanet",
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
@@ -8,13 +9,12 @@
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
-  "dependencies": {
-    "pixi.js": "^8.0.2"
-  },
   "scripts": {
+    "setup": "bun install",
+    "start": "bun run dev:server",
+    "dev:game": "bun --watch build game/src/main.ts --outdir game/gamedist",
+    "dev:server": "bun run --hot server/src/server.ts",
     "build:game": "bun build game/src/main.ts --outdir game/gamedist",
-    "watch:game": "bun --watch build game/src/main.ts --outdir game/gamedist",
-    "watch:server": "bun run --hot server/src/server.ts",
     "build:docker": "bun run build && docker build -t bun-pixi-game ."
   },
   "workspaces": [

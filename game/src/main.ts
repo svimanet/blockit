@@ -12,8 +12,7 @@ const app = new Application({
 app.stage.eventMode = 'static';
 app.stage.hitArea = app.screen;
 
-// Expect game to be loaded into a HTML doc that contains a <section id="game-section"></section>
-document.getElementById('#game')?.appendChild(app.view as HTMLCanvasElement);
+document.body.appendChild(app.view as HTMLCanvasElement);
 
 const numCells = 10;
 const cellSize = 32;
