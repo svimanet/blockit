@@ -38,9 +38,18 @@ Bun.serve({
           <script id='game-script' src='game.js' type='module'></script>
         `);
 
+        const scoreForm = (`
+          <form hx-post="api/hiscore" id="score-form" name="score form">
+            <input name="name" type="name" autocomplete="name" required />
+            <input name="score" type="number" required />
+            <button type="submit" value>submit</button>
+          </form>
+        `);
+
         /* game.js appends to #game */
         const gameContainer = (`
           <div id="game-container">
+            ${scoreForm}
             ${gameScript}
             <div id="game"/>
           </div>
