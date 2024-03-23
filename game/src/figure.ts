@@ -1,7 +1,7 @@
 import { Application, Container, FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { DisplayObject } from 'pixi.js';
 import type { FigureNode, Shape } from './types';
-import { grid64, shapeMovementCompensator, shapes } from './utils';
+import { grid64, randomColour, shapeMovementCompensator, shapes } from './utils';
 
 export class Figure implements Figure {
   color: number;
@@ -57,11 +57,11 @@ export class Figure implements Figure {
     let widthDiff = screenWidth - gridSize;
     let xpadding = widthDiff / 2;
     let ypadding = 200;
-    const randomColor = Math.floor(Math.random()*16777215);
 
+    const color = randomColour();
     initialNodeCoors.forEach((node) => {
       const square = new Graphics();
-      square.beginFill(randomColor);
+      square.beginFill(color);
       square.drawRect(node.x + xpadding+3, node.y + ypadding+3, cellSize-6, cellSize-6);
       square.endFill();
       container.addChild(square);
@@ -127,6 +127,7 @@ export class Figure implements Figure {
   }
 
   resetPost = () => {
+    this.container.alpha = 1;
     this.container.x = 0;
     this.container.y = -192;
   }

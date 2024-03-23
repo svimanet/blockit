@@ -109,3 +109,21 @@ export const shapeMovementCompensator = (shape: Shape, propx: number, propy: num
   }
   return { x, y };
 }
+
+export const colours = {
+  red: '#E36868',
+  green: '#68E368',
+  blue: '#6868E3',
+  yellow: '#E3E368',
+  purple: '#E368E3',
+  orange: '#E3A668',
+  cyan: '#68E3E3',
+  pink: '#E368A6',
+  white: '#FFFFFF',
+  aquamarine: '#7FFFD4',
+};
+
+export const randomColour = (): string => {
+  const colourstrings = Object.values(colours);
+  return colourstrings[Math.floor(Math.random() * colourstrings.length)];
+}
