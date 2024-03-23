@@ -58,6 +58,7 @@ app.stage.on('pointerup', () => {
     if (moved) {
       checkLineCompletion();
       newFigure();
+      // TODO: Check for game over
     }
   }
 });
@@ -113,10 +114,16 @@ const checkLineCompletion = () => {
       }
     });
 
-    // Finally, destroy the children
+    // Destroy the children
     nodesToDestroy.forEach((node) => (
       figure.container.removeChild(node)
     ));
+
+    // If figure is empty, remove it from figures array and stage.
+    if (figure.container.children.length === 0) {
+      app.stage.removeChild(figure.container);
+      figures.splice(figures.indexOf(figure), 1);
+    }
   });
 }
 
