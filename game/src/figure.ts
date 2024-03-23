@@ -6,7 +6,6 @@ import { grid64, shapeMovementCompensator, shapes } from './utils';
 export class Figure implements Figure {
   color: number;
   points: number;
-  nodes: Graphics[];
   container: Container;
   shape: Shape;
   posBeforeLift: { x: number, y: number };
@@ -21,11 +20,15 @@ export class Figure implements Figure {
     this.color = 0;
     this.points = 0;
     this.shape = shape;
-    this.nodes = this.makeNodes(shapes[shape], this.container, cellSize);
     this.posBeforeLift = {
       x: this.container.x,
       y: this.container.y
     };
+    this.makeNodes(
+      shapes[shape],
+      this.container,
+      cellSize
+    );
 
     // Pointer down event, set as global active drag target
     this.container.eventMode = 'static';
@@ -47,7 +50,7 @@ export class Figure implements Figure {
     initialNodeCoors: FigureNode[],
     container: Container,
     cellSize: number,
-  ): Graphics[] => {
+  ): void => {
     const cells = 10;
     const gridSize = cells * cellSize;
     const screenWidth = window.innerWidth;
@@ -56,17 +59,13 @@ export class Figure implements Figure {
     let ypadding = 200;
     const randomColor = Math.floor(Math.random()*16777215);
 
-    const nodes: Graphics[] = [];
     initialNodeCoors.forEach((node) => {
       const square = new Graphics();
       square.beginFill(randomColor);
       square.drawRect(node.x + xpadding+3, node.y + ypadding+3, cellSize-6, cellSize-6);
       square.endFill();
       container.addChild(square);
-      nodes.push(square);
     });
-
-    return(nodes);
   };
 
   /**
@@ -122,7 +121,6 @@ export class Figure implements Figure {
     this.container.y = gridSnap.y; 
 
     // Plced on grid, was moved.
-    console.log('Placed on grid');
     this.container.alpha = 1;
     this.container.eventMode = 'none';
     return true;
@@ -146,7 +144,6 @@ export class Figure implements Figure {
 
           // If a node in this figure collides with a node in the other figure, return true (Collides)
           if (node.getBounds().intersects(otherNode.getBounds())) {
-            console.log('COLLISION');
             return true;
           }
         });
@@ -192,5 +189,15 @@ export class Figure implements Figure {
     }
 
     return { x: closestX, y: closestY};
+  }
+
+  /* Return node coord adjusted for padding */
+  nodeValuesAdjusted = (
+    node: Graphics, xpadding: number, ypadding: number): { x: number, y: number } => {
+    const bounds = node.getBounds();
+    return {
+      x: bounds.x - xpadding,
+      y: bounds.y - ypadding,
+    };
   }
 }

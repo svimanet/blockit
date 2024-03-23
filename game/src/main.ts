@@ -62,73 +62,62 @@ app.stage.on('pointerup', () => {
   }
 });
 
+
+/**
+ * Check for completed lines and destroy them.
+ * @returns 
+ */
 const checkLineCompletion = () => {
   if (figures.length < 3) return;
 
-  const rows: number[] = Array(10).fill(0);
-  const cols: number[] = Array(10).fill(0);
+  const rows: Record<number, number> = {};
+  const cols: Record<number, number> = {};
+
+  // For each figure's node, ...
+  figures.forEach((figure) => {
+    figure.container.children.forEach((node) => {
+      const bounds = node.getBounds();
+      const x = Math.round(bounds.x);
+      const y = Math.round(bounds.y);
+
+      // Increment all nodes on each x and y position, for counting later
+      rows[y] ? rows[y] += 1 : rows[y] = 1;
+      cols[x] ? cols[x] += 1 : cols[x] = 1;
+    });
+  });
+
+  // Rows and cols with 10 nodes are mared for destruction
+  const ydel: number[] = [];
+  const xdel: number[] = [];
+  Object.entries(rows).forEach(([key, value]) => {
+    if (value === 10) ydel.push(Number(key));
+  });
+  Object.entries(cols).forEach(([key, value]) => {
+    if (value === 10) xdel.push(Number(key));
+  });
 
   // For each figure, ...
-  figures.forEach((figure) => {
-    // For each rect in figure, ...
-    figure.nodes.forEach((node) => {
+  figures.forEach((figure: Figure) => {
+    const nodesToDestroy: DisplayObject[] = [];
+
+    // For each node in figure, ...
+    figure.container.children.forEach((node) => {
       const bounds = node.getBounds();
-      // Get row and col number of rect, for counting
-      grid64.forEach((b64, i) => {
-        const xDiff = Math.abs((bounds.x - xpadding) - b64);
-        const yDiff = Math.abs((bounds.y - ypadding) - b64);
-        if (xDiff < 15) cols[i]++;
-        if (yDiff < 15) rows[i]++;
-      });
+      const x = Math.round(bounds.x);
+      const y = Math.round(bounds.y);
+
+      // Mark for destruction, if coords in pre-made destroy lists
+      if (ydel.includes(y) || xdel.includes(x)) {
+        console.log('destroying node');
+        nodesToDestroy.push(node);
+      }
     });
+
+    // Finally, destroy the children
+    nodesToDestroy.forEach((node) => (
+      figure.container.removeChild(node)
+    ));
   });
-
-  const completeRows: number[] = [];
-  rows.forEach((row: number, i: number) => {
-    if (row === 10) completeRows.push(i);
-  });
-
-  // Remove complete rows
-  if (completeRows.length > 0) {
-    console.log('complete row');
-
-    // For each complete row
-    completeRows.forEach((row) => {
-      const gridPx = grid64[row];
-
-      // For each figure
-      figures.forEach((figure) => {
-
-        /**
-         * "search" for rectangle coordinates that are within the row grid number.
-         * If found, add to nodesToDestroy array. 
-         * @param node 
-         */
-        const searchAndDestroy = (
-          node: DisplayObject,
-          inverse?:boolean
-        ): DisplayObject | undefined  => {
-          const bounds = node.getBounds();
-          let axis = bounds.y - ypadding;
-          if (inverse) axis = bounds.x - xpadding;
-
-          const diff = Math.abs(axis - gridPx);
-          if (diff < 15) return node;
-        }
-
-        // For each node in figure, ...
-        // check if the node is witin a complete row,
-        // then delete that node
-        const nodes = figure.container.children;
-        const yNodes = nodes.map(node => searchAndDestroy(node));
-        const xNodes = nodes.map(node => searchAndDestroy(node, true));
-        const nodesToDestroy = yNodes.concat(xNodes);
-        nodesToDestroy.forEach((node) => (
-          (node) && figure.container.removeChild(node)
-        ));
-      });
-    });
-  }
 }
 
 const newFigure = () => {
