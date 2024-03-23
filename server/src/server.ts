@@ -14,7 +14,7 @@ db.query(`
 
 const indexFile = Bun.file(path.join(__dirname, "./index.html"));
 const styleFile = Bun.file(path.join(__dirname, "./style.css"));
-const htmxFile = Bun.file(path.join(__dirname, "../htmx/htmx.min.js"));
+const htmxFile = Bun.file(path.join(__dirname, "../../node_modules/htmx.org/dist/htmx.min.js"));
 const gameFile = Bun.file(path.join(__dirname, "../../game/gamedist/main.js"));
 
 Bun.serve({

@@ -1,6 +1,6 @@
 import { Figure } from './figure';
 import { Application, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
-import { grid64, randomShape } from './utils';
+import { randomShape } from './utils';
 
 console.log('Game JS loading.');
 

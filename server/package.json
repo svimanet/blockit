@@ -1,13 +1,14 @@
 {
   "name": "bun-http-htmx",
   "module": "src/server.ts",
-  "type": "module",
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
+  "type": "module",
   "dependencies": {
+    "htmx.org": "^1.9.11"
   }
 }
