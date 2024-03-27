@@ -18,6 +18,7 @@ const indexFile = Bun.file(path.join(__dirname, "./index.html"));
 const styleFile = Bun.file(path.join(__dirname, "./style.css"));
 const htmxFile = Bun.file(path.join(__dirname, "../../node_modules/htmx.org/dist/htmx.min.js"));
 const gameFile = Bun.file(path.join(__dirname, "../../game/gamedist/main.js"));
+const favicon = Bun.file(path.join(__dirname, "./assets/favicon.ico"));
 
 Bun.serve({
   async fetch(req) {
@@ -28,6 +29,7 @@ Bun.serve({
 
     if (isGet) {
       if (url.pathname === "/") return new Response(indexFile);
+      if (url.pathname === "/favicon.ico") return new Response(favicon);
       if (url.pathname === "/style.css") return new Response(styleFile);
       if (url.pathname === "/htmx.js") return new Response(htmxFile);
       if (url.pathname === "/game.js") return new Response(gameFile);

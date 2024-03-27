@@ -1,15 +1,23 @@
-JS Browser game made with `Pixi.js`,
-`Typescript`, `Bun`, `Vite`.
+# Tech stack
+
+Game made with `Bun (with NPM)`, `Vite`, `Typescript`, `Pixi.js`. Creates a WebGL canvas, and attaches to a HTMLSection element. Uses `Bun` to build `TS` into production friendly `JS` build. Said build is delivered to a client through a `Bun HTTP server`.
+
+`Bun HTTP server` delivers everything to the webclient. Includes a `HTMX` frontend that fetches the game bundle
+
+Used technologies: `Bun`, `HTMX`, `Typescript`, `HTML`, `css`, `Vite`, `Pixi.js`
+
+TODO: Get rid of Vite. Only using for typed client api intellisense.
+
 
 Bundled to JS using Bun. JS game bundle delivered through Bun HTTP server in sibling workspace.
 
+# Game
+A lightweight JS web-browser game. Inspired by Tetris, 1010, Trigon, ... probably not a unique concept.
+
 ## Gameplay
-Place figures on a grid. Complete rows/cols disapear. Goes on as long as possible, but never forever.
+Place figures on a grid. Complete rows/cols disapear. Goes on as long as possible.
 
 ## Points
-- 1 Point per placed figure node (max 4 per place).
-- 2 Points per removed figure node
-- 3 Points per removed figure
-
-The extra rules for points are just for fun. Strictly not necessary, but everyone like watch big number go bigger.
-
+- 1 point per placed figure
+- 1 point per deleted figure node (figures have 4 nodes)
+- 1 point per deleted figure (4 nodes + 1 = 5 points total for a full figure removal)

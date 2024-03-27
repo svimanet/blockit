@@ -23,8 +23,9 @@ button {
   cursor: pointer;
   background: #999999;
   border: 1px solid darkgray;
-  border-radius: 5px;
-  padding: 0.15rem;
+  border-radius: 2px;
+  font-size: small;
+  padding: 0 1rem;
   width: fit-content;
 }
 
