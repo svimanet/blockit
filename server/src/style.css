@@ -52,3 +52,27 @@ form button {
   height: 1.25rem;
   margin: auto 0;
 }
+
+#hiscores-modal {
+  position: fixed;
+  border: 1px solid reD;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1010;
+  background-color: #999999;
+  height: 50%;
+  width: 50%;
+}
+
+#hiscores-modal-overlay {
+   z-index: 1000;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background-color: rgba(0, 0, 0, 0.7);
+}

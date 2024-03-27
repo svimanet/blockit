@@ -15,6 +15,20 @@ app.stage.hitArea = app.screen;
 
 document.getElementById('game')?.appendChild(app.view as HTMLCanvasElement);
 
+const incrementScore = (increment?: number) => {
+  const scoreInput = document.getElementById('score') as HTMLInputElement
+
+  let score = Number(scoreInput.value);
+  if (isNaN(score)) {
+    score = 0;
+  }
+  else {
+    score += increment || 1;
+  }
+
+  scoreInput.value = String(score);
+};
+
 const numCells = 10;
 const cellSize = 32;
 const gridSize = numCells * cellSize;
@@ -92,6 +106,9 @@ const checkLineCompletion = () => {
     if (value === 10) xdel.push(Number(key));
   });
 
+  let numNodesDestroyed = 0;
+  let numFiguresDestroyed = 0;
+
   // For each figure, ...
   figures.forEach((figure: Figure) => {
     const nodesToDestroy: DisplayObject[] = [];
@@ -104,21 +121,27 @@ const checkLineCompletion = () => {
 
       // Mark for destruction, if coords in pre-made destroy lists
       if (ydel.includes(y) || xdel.includes(x)) {
+        numNodesDestroyed++;
         nodesToDestroy.push(node);
       }
     });
 
     // Destroy the children
-    nodesToDestroy.forEach((node) => (
+    nodesToDestroy.forEach((node) => {
       figure.container.removeChild(node)
-    ));
+    });
 
     // If figure is empty, remove it from figures array and stage.
     if (figure.container.children.length === 0) {
+      numFiguresDestroyed++;
       app.stage.removeChild(figure.container);
       figures.splice(figures.indexOf(figure), 1);
     }
   });
+
+  // Increment points
+  numNodesDestroyed && incrementScore(numNodesDestroyed);
+  numFiguresDestroyed && incrementScore(numFiguresDestroyed);
 }
 
 const newFigure = () => {
@@ -127,6 +150,9 @@ const newFigure = () => {
   const figure = new Figure(shape, setter, app, cellSize);
   figure.setPos(32*3, 32*10+10);
   figures.push(figure);
+
+  // For every figure placed, we give a POINT.
+  incrementScore();
 }
 
 const generateInitialTestingFigures = (offset?: number) => {

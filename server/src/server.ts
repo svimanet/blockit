@@ -41,7 +41,7 @@ Bun.serve({
         const scoreForm = (`
           <form hx-post="api/hiscore" id="score-form" name="score form">
             <input name="name" type="name" autocomplete="name" required />
-            <input name="score" type="number" required />
+            <input name="score" type="number" required id="score" />
             <button type="submit" value>submit</button>
           </form>
         `);
@@ -75,6 +75,7 @@ Bun.serve({
       if (url.pathname === "/hiscores") {
         const query = db.query("select * from hiscores;");
         const result = query.all() as hiscore[];
+        console.log(result);
 
         const tableRows = result.map((row) => {
           return (`
@@ -88,10 +89,13 @@ Bun.serve({
         });
 
         const table = `
-        <modal>
-          <table>
-            ${ tableRows.join("") }
-          </table>
+        <modal id="hiscores-modal-overlay">
+          <modal id="hiscores-modal">
+            <button hx-get="none" hx-swap="outerHTML" hx-target="#hiscores-modal-overlay">Close</button>
+            <table>
+              ${ tableRows.join("") }
+            </table>
+          </modal> 
         </modal>
         `;
 
@@ -107,7 +111,7 @@ Bun.serve({
       if (url.pathname === "/api/hiscore") {
         const data: FormData = await req.formData();
         const name = data.get('name');
-        const score = data.get('score')
+        const score = data.get('score');
         const when = new Date().toISOString();
         db.query(`
           insert into hiscores (
