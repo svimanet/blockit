@@ -6,30 +6,27 @@ console.log('Game JS loading.');
 
 const app = new Application({
   background: '#333333',
-  resizeTo: window,
+  width: 32*10,
+  height: 32*15,
 });
 
 app.stage.eventMode = 'static';
 app.stage.hitArea = app.screen;
 
-document.body.appendChild(app.view as HTMLCanvasElement);
+document.getElementById('game')?.appendChild(app.view as HTMLCanvasElement);
 
 const numCells = 10;
 const cellSize = 32;
 const gridSize = numCells * cellSize;
 
-let widthDiff = window.innerWidth - gridSize;
-let xpadding = widthDiff / 2;
-let ypadding = 200;
-
 const renderGrid = () => {
   const grid = new Graphics();
   grid.lineStyle(2, 0x000000, 1);
   for (let i = 0; i < numCells + 1; i++) {
-    grid.moveTo(i * cellSize + xpadding, ypadding);
-    grid.lineTo(i * cellSize + xpadding, gridSize + ypadding);
-    grid.moveTo(xpadding, i * cellSize + ypadding);
-    grid.lineTo(gridSize + xpadding, i * cellSize + ypadding);
+    grid.moveTo(i * cellSize, 0);
+    grid.lineTo(i * cellSize, gridSize);
+    grid.moveTo(0, i * cellSize);
+    grid.lineTo(gridSize, i * cellSize);
   }
   app.stage.addChild(grid);
 };
@@ -63,7 +60,6 @@ app.stage.on('pointerup', () => {
   }
 });
 
-
 /**
  * Check for completed lines and destroy them.
  * @returns 
@@ -76,11 +72,10 @@ const checkLineCompletion = () => {
 
   // For each figure's node, ...
   figures.forEach((figure) => {
-    figure.container.children.forEach((node) => {
-      const bounds = node.getBounds();
-      const x = Math.round(bounds.x);
-      const y = Math.round(bounds.y);
-
+    figure.container.children.forEach((node: DisplayObject) => {
+      const nodeBounds = node.getBounds();
+      const x = nodeBounds.x;
+      const y = nodeBounds.y;
       // Increment all nodes on each x and y position, for counting later
       rows[y] ? rows[y] += 1 : rows[y] = 1;
       cols[x] ? cols[x] += 1 : cols[x] = 1;
@@ -103,13 +98,12 @@ const checkLineCompletion = () => {
 
     // For each node in figure, ...
     figure.container.children.forEach((node) => {
-      const bounds = node.getBounds();
-      const x = Math.round(bounds.x);
-      const y = Math.round(bounds.y);
+      const nodeBounds = node.getBounds();
+      const x = nodeBounds.x;
+      const y = nodeBounds.y;
 
       // Mark for destruction, if coords in pre-made destroy lists
       if (ydel.includes(y) || xdel.includes(x)) {
-        console.log('destroying node');
         nodesToDestroy.push(node);
       }
     });
@@ -131,24 +125,20 @@ const newFigure = () => {
   const shape = randomShape();
   const setter = setDragTarget;
   const figure = new Figure(shape, setter, app, cellSize);
-  figure.setPos(0, -192);
+  figure.setPos(32*3, 32*10+10);
   figures.push(figure);
 }
 
-const generateFullRowOfFigures = (offset?: number) => {
+const generateInitialTestingFigures = (offset?: number) => {
   const figure1 = new Figure('I', setDragTarget, app, cellSize);
   figure1.setPos(0, 64+(offset || 0));
+  figure1.container.eventMode = 'none';
   figures.push(figure1);
-  const figure2 = new Figure('I', setDragTarget, app, cellSize);
-  figure2.setPos(128, 64+(offset || 0));
-  figures.push(figure2);
-  const figure3 = new Figure('O', setDragTarget, app, cellSize);
-  figure3.setPos(256, 64+(offset || 0));
-  figures.push(figure3);
-}
+};
 
 newFigure();
-generateFullRowOfFigures();
-generateFullRowOfFigures(64);
+
+// For testing. TODO: Remove
+generateInitialTestingFigures();
 
 console.log('Game JS loaded.');

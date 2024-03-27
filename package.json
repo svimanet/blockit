@@ -10,7 +10,7 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "setup": "bun install",
+    "setup": "bun install && bun build:game",
     "start": "bun run dev:server",
     "dev:game": "bun --watch build game/src/main.ts --outdir game/gamedist",
     "dev:server": "bun run --hot server/src/server.ts",

@@ -1,14 +1,15 @@
 import { Application, Container, FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { DisplayObject } from 'pixi.js';
 import type { FigureNode, Shape } from './types';
-import { grid64, randomColour, shapeMovementCompensator, shapes } from './utils';
+import { grid32, randomColour, shapes } from './utils';
 
 export class Figure implements Figure {
   color: number;
   points: number;
   container: Container;
   shape: Shape;
-  posBeforeLift: { x: number, y: number };
+  xMoveDiff: number = 0;
+  yMoveDiff: number = 0;
 
   constructor(
     shape: Shape,
@@ -20,10 +21,6 @@ export class Figure implements Figure {
     this.color = 0;
     this.points = 0;
     this.shape = shape;
-    this.posBeforeLift = {
-      x: this.container.x,
-      y: this.container.y
-    };
     this.makeNodes(
       shapes[shape],
       this.container,
@@ -33,7 +30,9 @@ export class Figure implements Figure {
     // Pointer down event, set as global active drag target
     this.container.eventMode = 'static';
     this.container.cursor = 'pointer';
-    this.container.on('pointerdown', () => {
+    this.container.on('pointerdown', (e: FederatedPointerEvent) => {
+      this.xMoveDiff = this.container.x - e.clientX;
+      this.yMoveDiff = this.container.y - e.clientY;
       setDragTarget(this);
     });
 
@@ -51,18 +50,11 @@ export class Figure implements Figure {
     container: Container,
     cellSize: number,
   ): void => {
-    const cells = 10;
-    const gridSize = cells * cellSize;
-    const screenWidth = window.innerWidth;
-    let widthDiff = screenWidth - gridSize;
-    let xpadding = widthDiff / 2;
-    let ypadding = 200;
-
     const color = randomColour();
     initialNodeCoors.forEach((node) => {
       const square = new Graphics();
       square.beginFill(color);
-      square.drawRect(node.x + xpadding+3, node.y + ypadding+3, cellSize-6, cellSize-6);
+      square.drawRect(node.x+3, node.y+3, cellSize-6, cellSize-6);
       square.endFill();
       container.addChild(square);
     });
@@ -76,14 +68,9 @@ export class Figure implements Figure {
     const { container } = this;
     container.alpha = 0.5;
 
-    // TODO: There has to be a better way
-    // Check figure types and compensate for mystery padding
-    const { x, y } = shapeMovementCompensator(
-      this.shape,
-      e.clientX - (container.width*2.25),
-      e.clientY - (container.height*2.25),
-    );
-
+    // Adjust figure position, and take clickd offset into account.
+    const x = e.clientX + this.xMoveDiff;
+    const y = e.clientY + this.yMoveDiff;
     this.setPos(x, y);
   }
 
@@ -130,6 +117,7 @@ export class Figure implements Figure {
     this.container.alpha = 1;
     this.container.x = 0;
     this.container.y = -192;
+    this.setPos(32*3, 32*10+10);// TODO: Copied from main newFigure method. Should couple,
   }
 
   collision(figures: Figure[]): boolean {
@@ -153,10 +141,10 @@ export class Figure implements Figure {
   }
 
   isOutsideGrid = (): boolean => {
-    const aboveGrid = this.container.y < grid64[0]-15;
-    const belowGrid = this.container.y > grid64[grid64.length-1]+15;
-    const leftOfGrid = this.container.x < grid64[0]-15;
-    const rightOfGrid = this.container.x > grid64[grid64.length-1]+15;
+    const aboveGrid = this.container.y < grid32[0]-15;
+    const belowGrid = this.container.y > grid32[grid32.length-1]+15;
+    const leftOfGrid = this.container.x < grid32[0]-15;
+    const rightOfGrid = this.container.x > grid32[grid32.length-1]+15;
 
     if (aboveGrid || belowGrid || leftOfGrid || rightOfGrid) {
       return true;
@@ -174,15 +162,15 @@ export class Figure implements Figure {
     /* Select closest grid corner for this x and y */
     /* Reduce through options, and return closest. */
 
-    if (!grid64.includes(this.container.x)) {
-      closestX = grid64.reduce((prev, curr) => {
+    if (!grid32.includes(this.container.x)) {
+      closestX = grid32.reduce((prev, curr) => {
         const currDiff = Math.abs(curr - this.container.x);
         const prevDiff = Math.abs(prev - this.container.x);
         return (currDiff < prevDiff ? curr : prev);
       });
     }
-    if (!grid64.includes(this.container.y)) {
-      closestY = grid64.reduce((prev, curr) => {
+    if (!grid32.includes(this.container.y)) {
+      closestY = grid32.reduce((prev, curr) => {
         const currDiff = Math.abs(curr - this.container.y);
         const prevDiff = Math.abs(prev - this.container.y);
         return (currDiff < prevDiff ? curr : prev);
