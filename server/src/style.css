@@ -4,10 +4,12 @@ body {
 }
 
 header {
-  max-width: 800px;
+  max-width: 320px;
   margin: auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin: auto;
 }
 
 h1 {

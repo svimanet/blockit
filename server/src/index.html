@@ -9,10 +9,13 @@
 
     <header>
       <h1>Gaem</h1>
+      <button hx-get="hiscores" hx-target="#hiscores-section" hx-swap="innerHTML">Hiscores</button>
     </header>
 
+    <section id="hiscores-section">
+    </section>
+
     <section id="game-section">
-      <button hx-get="hiscores" hx-swap="outerHTML">Hiscores</button>
       <button hx-get="game" hx-trigger="load" hx-swap="outerHTML">load game</button>
     </section>
 

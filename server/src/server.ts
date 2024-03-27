@@ -1,5 +1,7 @@
 import { Database } from "bun:sqlite";
+import { Game, gameScoreForm } from "./components/game";
 import path from "path";
+import { HiscoresModal, type Hiscore } from "./components/hiscores";
 
 const db = new Database("mydb.sqlite");
 
@@ -30,36 +32,13 @@ Bun.serve({
       if (url.pathname === "/htmx.js") return new Response(htmxFile);
       if (url.pathname === "/game.js") return new Response(gameFile);
 
-      /* GET Game HTML Canvas, Hiscores Form, and Game JS script, as HTML */
+      /* GET Game HTML Canvas, Hiscores Form, and Game JS script.*/
       if (url.pathname === "/game") {
-
-        /* Script element is insert in dom on response, which requests GET "/game.js" */
-        const gameScript = (`
-          <script id='game-script' src='game.js' type='module'></script>
-        `);
-
-        const scoreForm = (`
-          <form hx-post="api/hiscore" id="score-form" name="score form">
-            <input name="name" type="name" autocomplete="name" required />
-            <input name="score" type="number" required id="score" />
-            <button type="submit" value>submit</button>
-          </form>
-        `);
-
-        /* game.js appends to #game */
-        const gameContainer = (`
-          <div id="game-container">
-            ${scoreForm}
-            ${gameScript}
-            <div id="game"/>
-          </div>
-        `);
-
+        const gameContainer = Game();
         return new Response(gameContainer,
           { status: 200, headers: { "Content-Type": "text/html" }}
         );
       }
-
 
       /* GET All hiscores as JSON */
       if (url.pathname === "/api/hiscores") {
@@ -71,34 +50,10 @@ Bun.serve({
       }
 
       /* GET Hiscores as a HTML Table */
-      interface hiscore { id: number; name: string, score: number, dateime: Date };
       if (url.pathname === "/hiscores") {
         const query = db.query("select * from hiscores;");
-        const result = query.all() as hiscore[];
-        console.log(result);
-
-        const tableRows = result.map((row) => {
-          return (`
-            <tr>
-              <td>${row.id}</td>
-              <td>${row.name}</td>
-              <td>${row.score}</td>
-              <td>${row.dateime}</td>
-            </tr>
-          `);
-        });
-
-        const table = `
-        <modal id="hiscores-modal-overlay">
-          <modal id="hiscores-modal">
-            <button hx-get="none" hx-swap="outerHTML" hx-target="#hiscores-modal-overlay">Close</button>
-            <table>
-              ${ tableRows.join("") }
-            </table>
-          </modal> 
-        </modal>
-        `;
-
+        const result = query.all() as Hiscore[];
+        const table = HiscoresModal(result);
         return new Response(table,
           { status: 200, headers: { "Content-Type": "text/html" }}
         );
