@@ -1,6 +1,7 @@
 import { Figure } from './figure';
 import { Application, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
 import { randomShape } from './utils';
+import { coordsToString, stringToCoords, type GridItem, type GridMap, FiguresToGridMap, SearchAndDestroy } from './lineCompletion';
 
 console.log('Game JS loading.');
 
@@ -79,69 +80,42 @@ app.stage.on('pointerup', () => {
  * @returns 
  */
 const checkLineCompletion = () => {
-  if (figures.length < 3) return;
+  // Lag grid map over nodes, med attached figure.
+  const grid: GridMap = FiguresToGridMap(figures, cellSize, numCells);
 
-  const rows: Record<number, number> = {};
-  const cols: Record<number, number> = {};
+  // Count complete rows/cols
+  const xMap = new Map<number, number>();
+  const yMap = new Map<number, number>();
+  grid.forEach((value, key) => {
+    if (!value) return;
+    const tupl = stringToCoords(key);
+    const { x, y } = tupl;
+    xMap.set(x, (xMap.get(x) || 0) + 1);
+    yMap.set(y, (yMap.get(y) || 0) + 1);
+  });
 
-  // For each figure's node, ...
+  // Find complete rows/cols
+  const completeX: number[] = [];
+  xMap.forEach((value, key) => {
+    if (value === numCells) completeX.push(key);
+  });
+
+  const completeY: number[] = [];
+  yMap.forEach((value, key) => {
+    if (value === numCells) completeY.push(key);
+  });
+
+  // Delete nodes on completed rows/cols
+  completeX.forEach((x) => SearchAndDestroy(grid, x, undefined));
+  completeY.forEach((y) => SearchAndDestroy(grid, undefined, y));
+
+  // Destroy figures with no children
   figures.forEach((figure) => {
-    figure.container.children.forEach((node: DisplayObject) => {
-      const nodeBounds = node.getBounds();
-      const x = nodeBounds.x;
-      const y = nodeBounds.y;
-      // Increment all nodes on each x and y position, for counting later
-      rows[y] ? rows[y] += 1 : rows[y] = 1;
-      cols[x] ? cols[x] += 1 : cols[x] = 1;
-    });
-  });
-
-  // Rows and cols with 10 nodes are mared for destruction
-  const ydel: number[] = [];
-  const xdel: number[] = [];
-  Object.entries(rows).forEach(([key, value]) => {
-    if (value === 10) ydel.push(Number(key));
-  });
-  Object.entries(cols).forEach(([key, value]) => {
-    if (value === 10) xdel.push(Number(key));
-  });
-
-  let numNodesDestroyed = 0;
-  let numFiguresDestroyed = 0;
-
-  // For each figure, ...
-  figures.forEach((figure: Figure) => {
-    const nodesToDestroy: DisplayObject[] = [];
-
-    // For each node in figure, ...
-    figure.container.children.forEach((node) => {
-      const nodeBounds = node.getBounds();
-      const x = nodeBounds.x;
-      const y = nodeBounds.y;
-
-      // Mark for destruction, if coords in pre-made destroy lists
-      if (ydel.includes(y) || xdel.includes(x)) {
-        numNodesDestroyed++;
-        nodesToDestroy.push(node);
-      }
-    });
-
-    // Destroy the children
-    nodesToDestroy.forEach((node) => {
-      figure.container.removeChild(node)
-    });
-
-    // If figure is empty, remove it from figures array and stage.
     if (figure.container.children.length === 0) {
-      numFiguresDestroyed++;
       app.stage.removeChild(figure.container);
       figures.splice(figures.indexOf(figure), 1);
     }
   });
-
-  // Increment points
-  numNodesDestroyed && incrementScore(numNodesDestroyed);
-  numFiguresDestroyed && incrementScore(numFiguresDestroyed);
 }
 
 const newFigure = () => {
