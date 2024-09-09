@@ -1,15 +1,14 @@
-import { Application, Container, FederatedPointerEvent, Graphics } from 'pixi.js';
-import type { DisplayObject } from 'pixi.js';
+import { Application, Container, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { FigureNode, Shape } from './types';
-import { grid32, randomColour, shapes } from './utils';
+import { grid64, shapes } from './utils';
 
 export class Figure implements Figure {
   color: number;
   points: number;
+  nodes: Graphics[];
   container: Container;
   shape: Shape;
-  xMoveDiff: number = 0;
-  yMoveDiff: number = 0;
+  clickPosition: { x: number, y: number };
 
   constructor(
     shape: Shape,
@@ -21,18 +20,18 @@ export class Figure implements Figure {
     this.color = 0;
     this.points = 0;
     this.shape = shape;
-    this.makeNodes(
-      shapes[shape],
-      this.container,
-      cellSize
-    );
+    this.nodes = this.makeNodes(shapes[shape], this.container, cellSize);
+    this.clickPosition = {
+      x: this.container.x,
+      y: this.container.y
+    };
 
     // Pointer down event, set as global active drag target
     this.container.eventMode = 'static';
     this.container.cursor = 'pointer';
-    this.container.on('pointerdown', (e: FederatedPointerEvent) => {
-      this.xMoveDiff = this.container.x - e.clientX;
-      this.yMoveDiff = this.container.y - e.clientY;
+    this.container.on('pointerdown', 
+    (e: FederatedPointerEvent) => {
+      this.clickPosition = { x: e.clientX, y: e.clientY };
       setDragTarget(this);
     });
 
@@ -49,29 +48,48 @@ export class Figure implements Figure {
     initialNodeCoors: FigureNode[],
     container: Container,
     cellSize: number,
-  ): void => {
-    const color = randomColour();
+  ): Graphics[] => {
+    const cells = 10;
+    const gridSize = cells * cellSize;
+    const screenWidth = window.innerWidth;
+    let widthDiff = screenWidth - gridSize;
+    let xpadding = widthDiff / 2;
+    let ypadding = 200;
+    const randomColor = Math.floor(Math.random()*16777215);
+
+    const nodes: Graphics[] = [];
     initialNodeCoors.forEach((node) => {
       const square = new Graphics();
-      square.beginFill(color);
-      square.drawRect(node.x+3, node.y+3, cellSize-6, cellSize-6);
+      square.beginFill(randomColor);
+      square.drawRect(node.x + xpadding+3, node.y + ypadding+3, cellSize-6, cellSize-6);
       square.endFill();
       container.addChild(square);
+      nodes.push(square);
     });
+
+    return(nodes);
   };
 
   /**
-   * Move the figure to the mouse position.
+   * Move the figure relative to the mouse position.
+   * Make the figure a bit transparent while doing so.
    * @param e - Mouse Event to follow
    */
   move(e: FederatedPointerEvent) {
-    const { container } = this;
+    const { container, clickPosition } = this;
     container.alpha = 0.5;
 
-    // Adjust figure position, and take clickd offset into account.
-    const x = e.clientX + this.xMoveDiff;
-    const y = e.clientY + this.yMoveDiff;
-    this.setPos(x, y);
+    const prevClickPos = clickPosition;
+    const currClickPos = { x: e.clientX, y: e.clientY };
+    this.clickPosition = currClickPos; 
+
+    const xDiff = prevClickPos.x - currClickPos.x;
+    const yDiff = prevClickPos.y - currClickPos.y;
+
+    const x = container.x - xDiff;
+    const y = container.y - yDiff;
+    this.container.x = x;
+    this.container.y = y;
   }
 
   /**
@@ -89,35 +107,48 @@ export class Figure implements Figure {
    * @returns true if the figure was placed on the grid, false if not.
   */
   stopMoving(figures: Figure[]): boolean { 
-    // Reset pos and return, if outside grid
-    if (this.isOutsideGrid()) {
-      this.resetPost();
+    // Calculate closest symetrical grid pos
+    const gridSnap = this.snapFigureToGrid();
+
+    // Snap to closest grid cells possible
+    this.container.x = gridSnap.x;
+    this.container.y = gridSnap.y;
+    this.container.alpha = 1;
+
+    // Check for out of bounds (outside grid)
+    // const xOOB = 
+    //   this.container.x > grid64[0] || 
+    //   this.container.x <= grid64[grid64.length-1];
+    // const yOOB = 
+    // this.container.y > grid64[0] || 
+    // this.container.y <= grid64[grid64.length-1];
+    // if (xOOB || yOOB) {
+    //   this.container.x = 0;
+    //   this.container.y = -192;
+    //   return false;
+    // }
+
+    const figureBot = this.container.y + this.container.height;
+    const gridTop = grid64[0];
+    const yOOB = figureBot < gridTop;
+
+    if (yOOB) {
+      this.container.x = 0;
+      this.container.y = -192;
       return false;
     }
 
     // Check for collision with other figures, after adjusting for grid snap
     const collision = this.collision(figures);
     if (collision) {
-      this.resetPost();
+      this.container.x = 0;
+      this.container.y = -192;
       return false;
     }
-
-    // Snap figure in place inside grid
-    const gridSnap = this.snapFigureToGrid();
-    this.container.x = gridSnap.x;
-    this.container.y = gridSnap.y; 
-
-    // Plced on grid, was moved.
-    this.container.alpha = 1;
-    this.container.eventMode = 'none';
-    return true;
-  }
-
-  resetPost = () => {
-    this.container.alpha = 1;
-    this.container.x = 0;
-    this.container.y = -192;
-    this.setPos(32*3, 32*10+10);// TODO: Copied from main newFigure method. Should couple,
+    else {
+      this.container.eventMode = 'none';
+      return true;
+    }
   }
 
   collision(figures: Figure[]): boolean {
@@ -133,6 +164,7 @@ export class Figure implements Figure {
 
           // If a node in this figure collides with a node in the other figure, return true (Collides)
           if (node.getBounds().intersects(otherNode.getBounds())) {
+            console.log('COLLISION');
             return true;
           }
         });
@@ -140,20 +172,9 @@ export class Figure implements Figure {
     });
   }
 
-  isOutsideGrid = (): boolean => {
-    const aboveGrid = this.container.y < grid32[0]-15;
-    const belowGrid = this.container.y > grid32[grid32.length-1]+15;
-    const leftOfGrid = this.container.x < grid32[0]-15;
-    const rightOfGrid = this.container.x > grid32[grid32.length-1]+15;
-
-    if (aboveGrid || belowGrid || leftOfGrid || rightOfGrid) {
-      return true;
-    }
-    return false;
-  }
-
   /*
     Return coordinates for closest 'perfect symetrical' position in grid.
+    If the figure is outside the grid, snap it back to the grid as closest possible pos.
   */
   snapFigureToGrid = (): { x: number, y: number } => {
     let closestX = this.container.x;
@@ -162,31 +183,35 @@ export class Figure implements Figure {
     /* Select closest grid corner for this x and y */
     /* Reduce through options, and return closest. */
 
-    if (!grid32.includes(this.container.x)) {
-      closestX = grid32.reduce((prev, curr) => {
+    if (!grid64.includes(this.container.x)) {
+      closestX = grid64.reduce((prev, curr) => {
         const currDiff = Math.abs(curr - this.container.x);
         const prevDiff = Math.abs(prev - this.container.x);
         return (currDiff < prevDiff ? curr : prev);
       });
     }
-    if (!grid32.includes(this.container.y)) {
-      closestY = grid32.reduce((prev, curr) => {
+    if (!grid64.includes(this.container.y)) {
+      closestY = grid64.reduce((prev, curr) => {
         const currDiff = Math.abs(curr - this.container.y);
         const prevDiff = Math.abs(prev - this.container.y);
         return (currDiff < prevDiff ? curr : prev);
       });
     }
 
-    return { x: closestX, y: closestY};
-  }
+    /* Check if figure is out of bounds (partially out of the grid) and adjust */
 
-  /* Return node coord adjusted for padding */
-  nodeValuesAdjusted = (
-    node: Graphics, xpadding: number, ypadding: number): { x: number, y: number } => {
-    const bounds = node.getBounds();
-    return {
-      x: bounds.x - xpadding,
-      y: bounds.y - ypadding,
-    };
+    const numHorizontalCells = Math.round(this.container.width / 64);
+    const numVerticalCells = Math.round(this.container.height / 64);
+
+    const maxX = this.container.x + this.container.width/2 ;
+    if (maxX > grid64[grid64.length - 1]) {
+      closestX = grid64[grid64.length - (numHorizontalCells)];
+    }
+    const maxY = this.container.y + this.container.height/2;
+    if (maxY > grid64[grid64.length - 1]) {
+      closestY = grid64[grid64.length - (numVerticalCells)];
+    }
+
+    return { x: closestX, y: closestY};
   }
 }

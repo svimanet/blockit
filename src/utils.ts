@@ -65,22 +65,4 @@ export const randomShape = (): Shape => {
   return shapestrings[Math.floor(Math.random() * shapestrings.length)];
 }
 
-export const grid32 = [0, 32, 64, 96, 128, 160, 192, 224, 256, 288];
-
-export const colours = {
-  red: '#E36868',
-  green: '#68E368',
-  blue: '#6868E3',
-  yellow: '#E3E368',
-  purple: '#E368E3',
-  orange: '#E3A668',
-  cyan: '#68E3E3',
-  pink: '#E368A6',
-  white: '#FFFFFF',
-  aquamarine: '#7FFFD4',
-};
-
-export const randomColour = (): string => {
-  const colourstrings = Object.values(colours);
-  return colourstrings[Math.floor(Math.random() * colourstrings.length)];
-}
+export const grid64 = [0, 32, 64, 96, 128, 160, 192, 224, 256, 288];

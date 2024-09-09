@@ -1,73 +1,67 @@
-import {
-  Application,
-  FederatedPointerEvent,
-  Graphics
-} from 'pixi.js';
-
-import type { GridMap } from './lineCompletion';
 import { Figure } from './figure';
-import { randomShape } from './utils';
-import {
-  stringToCoords,
-  FiguresToGridMap,
-  SearchAndDestroy
-} from './lineCompletion';
+import { Application, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
+import { grid64, randomShape } from './utils';
 
-// Default to mobile min-width
-const width = window.innerWidth || 320;
-// Default to 150% (1.5 times) of width
-let height = width * 1.5;
-let app: Application;
+console.log('Game JS loading.');
 
-try {
-  const gameContainer = document.getElementById('game') as HTMLDivElement;
-  height = gameContainer.clientHeight;
-  app = new Application({
-    background: '#333333',
-    width,
-    height,
-  });
+// // Default to mobile min-width
+// const width = window.innerWidth || 320;
+// // Default to 150% (1.5 times) of width
+// let height = width * 1.5;
+// let app: Application;
 
-  app.stage.eventMode = 'static';
-  app.stage.hitArea = app.screen;
-  gameContainer.appendChild(app.view as HTMLCanvasElement);
-  console.log('Successfully attached game window');
-}
-catch (err) {
-  console.error('Failed at something. Idk. Here\'s a clue:', err);
-  throw err;
-}
+// try {
+//   const gameContainer = document.getElementById('game') as HTMLDivElement;
+//   height = gameContainer.clientHeight;
+//   app = new Application({
+//     background: '#333333',
+//     width,
+//     height,
+//   });
 
-const incrementScore = (increment?: number) => {
-  const scoreInput = document.getElementById('score') as HTMLSpanElement;
+//   app.stage.eventMode = 'static';
+//   app.stage.hitArea = app.screen;
+//   gameContainer.appendChild(app.view as HTMLCanvasElement);
+//   console.log('Successfully attached game window');
+// }
+// catch (err) {
+//   console.error('Failed at something. Idk. Here\'s a clue:', err);
+//   throw err;
+// }
 
-  let score = Number(scoreInput.innerText);
-  if (isNaN(score)) {
-    score = 0;
-  }
-  else {
-    score += increment || 1;
-  }
+const app = new Application({
+  background: '#333333',
+  resizeTo: window,
+});
+app.stage.eventMode = 'static';
+app.stage.hitArea = app.screen;
 
-  scoreInput.innerText = String(score);
-};
+const gameContainer = document.getElementById('game') as HTMLDivElement;
+gameContainer.appendChild(app.view as HTMLCanvasElement);
+// document.body.appendChild(app.view as HTMLCanvasElement);
 
 const numCells = 10;
 const cellSize = 32;
 const gridSize = numCells * cellSize;
 
+let widthDiff = window.innerWidth - gridSize;
+let xpadding = widthDiff / 2;
+let ypadding = 200;
+
 const renderGrid = () => {
   const grid = new Graphics();
   grid.lineStyle(2, 0x000000, 1);
   for (let i = 0; i < numCells + 1; i++) {
-    grid.moveTo(i * cellSize, 0);
-    grid.lineTo(i * cellSize, gridSize);
-    grid.moveTo(0, i * cellSize);
-    grid.lineTo(gridSize, i * cellSize);
+    grid.moveTo(i * cellSize + xpadding, ypadding);
+    grid.lineTo(i * cellSize + xpadding, gridSize + ypadding);
+    grid.moveTo(xpadding, i * cellSize + ypadding);
+    grid.lineTo(gridSize + xpadding, i * cellSize + ypadding);
   }
   app.stage.addChild(grid);
 };
 
+// TODO: Resize
+renderGrid();
 
 const figures = Array<Figure>();
 
@@ -90,80 +84,101 @@ app.stage.on('pointerup', () => {
     if (moved) {
       checkLineCompletion();
       newFigure();
-      // TODO: Check for game over
     }
   }
 });
 
-/**
- * Check for completed lines and destroy them.
- * @returns 
- */
 const checkLineCompletion = () => {
-  // Lag grid map over nodes, med attached figure.
-  const grid: GridMap = FiguresToGridMap(figures, cellSize, numCells);
+  if (figures.length < 3) return;
 
-  // Count complete rows/cols
-  const xMap = new Map<number, number>();
-  const yMap = new Map<number, number>();
-  grid.forEach((value, key) => {
-    if (!value) return;
-    const tupl = stringToCoords(key);
-    const { x, y } = tupl;
-    xMap.set(x, (xMap.get(x) || 0) + 1);
-    yMap.set(y, (yMap.get(y) || 0) + 1);
-  });
+  const rows: number[] = Array(10).fill(0);
+  const cols: number[] = Array(10).fill(0);
 
-  // Find complete rows/cols
-  const completeX: number[] = [];
-  xMap.forEach((value, key) => {
-    if (value === numCells) completeX.push(key);
-  });
-
-  const completeY: number[] = [];
-  yMap.forEach((value, key) => {
-    if (value === numCells) completeY.push(key);
-  });
-
-  // Delete nodes on completed rows/cols
-  completeX.forEach((x) => SearchAndDestroy(grid, x, undefined));
-  completeY.forEach((y) => SearchAndDestroy(grid, undefined, y));
-
-  // Destroy figures with no children
+  // For each figure, ...
   figures.forEach((figure) => {
-    if (figure.container.children.length === 0) {
-      app.stage.removeChild(figure.container);
-      figures.splice(figures.indexOf(figure), 1);
-    }
+    // For each rect in figure, ...
+    figure.nodes.forEach((node) => {
+      const bounds = node.getBounds();
+      // Get row and col number of rect, for counting
+      grid64.forEach((b64, i) => {
+        const xDiff = Math.abs((bounds.x - xpadding) - b64);
+        const yDiff = Math.abs((bounds.y - ypadding) - b64);
+        if (xDiff < 15) cols[i]++;
+        if (yDiff < 15) rows[i]++;
+      });
+    });
   });
+
+  const completeRows: number[] = [];
+  rows.forEach((row: number, i: number) => {
+    if (row === 10) completeRows.push(i);
+  });
+
+  // Remove complete rows
+  if (completeRows.length > 0) {
+    console.log('complete row');
+
+    // For each complete row
+    completeRows.forEach((row) => {
+      const gridPx = grid64[row];
+
+      // For each figure
+      figures.forEach((figure) => {
+
+        /**
+         * "search" for rectangle coordinates that are within the row grid number.
+         * If found, add to nodesToDestroy array. 
+         * @param node 
+         */
+        const searchAndDestroy = (
+          node: DisplayObject,
+          inverse?:boolean
+        ): DisplayObject | undefined  => {
+          const bounds = node.getBounds();
+          let axis = bounds.y - ypadding;
+          if (inverse) axis = bounds.x - xpadding;
+
+          const diff = Math.abs(axis - gridPx);
+          if (diff < 15) return node;
+        }
+
+        // For each node in figure, ...
+        // check if the node is witin a complete row,
+        // then delete that node
+        const nodes = figure.container.children;
+        const yNodes = nodes.map(node => searchAndDestroy(node));
+        const xNodes = nodes.map(node => searchAndDestroy(node, true));
+        const nodesToDestroy = yNodes.concat(xNodes);
+        nodesToDestroy.forEach((node) => (
+          (node) && figure.container.removeChild(node)
+        ));
+      });
+    });
+  }
 }
 
 const newFigure = () => {
   const shape = randomShape();
   const setter = setDragTarget;
   const figure = new Figure(shape, setter, app, cellSize);
-  figure.setPos(32*3, 32*10+10);
+  figure.setPos(0, -192);
   figures.push(figure);
-
-  // For every figure placed, we give a POINT.
-  incrementScore();
 }
 
-const generateInitialTestingFigures = (offset?: number) => {
+const generateFullRowOfFigures = (offset?: number) => {
   const figure1 = new Figure('I', setDragTarget, app, cellSize);
   figure1.setPos(0, 64+(offset || 0));
-  figure1.container.eventMode = 'none';
   figures.push(figure1);
-};
+  const figure2 = new Figure('I', setDragTarget, app, cellSize);
+  figure2.setPos(128, 64+(offset || 0));
+  figures.push(figure2);
+  const figure3 = new Figure('O', setDragTarget, app, cellSize);
+  figure3.setPos(256, 64+(offset || 0));
+  figures.push(figure3);
+}
 
-export const start = () => {
-  // TODO: Resize
-  renderGrid();
-  newFigure();
-  // For testing. TODO: Remove
-  generateInitialTestingFigures();
-};
+newFigure();
+generateFullRowOfFigures();
+generateFullRowOfFigures(64);
 
-console.log('Game JS Initialized OK.');
-
-start();
+console.log('Game JS loaded.');

@@ -13,6 +13,7 @@
   "scripts": {
     "build": "bun run vite build && bun run build:copy:htmx",
     "build:copy:htmx": "cp node_modules/htmx.org/dist/htmx.js dist/.",
+    "dev": "bun run vite build --watch",
     "preview": "bun run vite preview"
   }
 }
