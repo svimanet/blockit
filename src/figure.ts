@@ -10,6 +10,14 @@ export class Figure implements Figure {
   shape: Shape;
   clickPosition: { x: number, y: number };
 
+  /**
+   * - Requires decoupled callback for keeping mouse-drag state outside object scope.
+   * - Requires app obj for attaching internaly created render-objects onto the app.
+   * @param shape - Which shape to create
+   * @param cellSize - Size in px, of each cell/node in fig.
+   * @param setDragTarget
+   * @param app 
+   */
   constructor(
     shape: Shape,
     setDragTarget: (target: Figure) => void,
@@ -26,7 +34,7 @@ export class Figure implements Figure {
       y: this.container.y
     };
 
-    // Pointer down event, set as global active drag target
+    // Pointer down event, for setting this obj as global active drag target
     this.container.eventMode = 'static';
     this.container.cursor = 'pointer';
     this.container.on('pointerdown', 
