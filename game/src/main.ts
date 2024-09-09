@@ -1,9 +1,21 @@
-import { Figure } from './figure';
-import { Application, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
-import { randomShape } from './utils';
-import { coordsToString, stringToCoords, type GridItem, type GridMap, FiguresToGridMap, SearchAndDestroy } from './lineCompletion';
+console.log("TIME TO DO STUFF");
 
-console.log('Game JS loading.');
+import {
+  Application,
+  FederatedPointerEvent,
+  Graphics
+} from 'pixi.js';
+
+import type { GridMap } from './lineCompletion';
+import { Figure } from './figure';
+import { randomShape } from './utils';
+import {
+  stringToCoords,
+  FiguresToGridMap,
+  SearchAndDestroy
+} from './lineCompletion';
+
+console.log("DOING STUFF");
 
 const app = new Application({
   background: '#333333',
@@ -14,21 +26,30 @@ const app = new Application({
 app.stage.eventMode = 'static';
 app.stage.hitArea = app.screen;
 
-document.getElementById('game')?.appendChild(app.view as HTMLCanvasElement);
+try {
+  const gameContainer = document.getElementById('game') as HTMLDivElement;
+  gameContainer.appendChild(app.view as HTMLCanvasElement);
+  console.log('Successfully attached game window');
+}
+catch (err) {
+  console.error('Failed to attach game window', err);
+}
 
-const incrementScore = (increment?: number) => {
-  const scoreInput = document.getElementById('score') as HTMLInputElement
+console.log('DID STUFF');
 
-  let score = Number(scoreInput.value);
-  if (isNaN(score)) {
-    score = 0;
-  }
-  else {
-    score += increment || 1;
-  }
+// const incrementScore = (increment?: number) => {
+//   const scoreInput = document.getElementById('score') as HTMLInputElement
 
-  scoreInput.value = String(score);
-};
+//   let score = Number(scoreInput.value);
+//   if (isNaN(score)) {
+//     score = 0;
+//   }
+//   else {
+//     score += increment || 1;
+//   }
+
+//   scoreInput.value = String(score);
+// };
 
 const numCells = 10;
 const cellSize = 32;
@@ -46,8 +67,6 @@ const renderGrid = () => {
   app.stage.addChild(grid);
 };
 
-// TODO: Resize
-renderGrid();
 
 const figures = Array<Figure>();
 
@@ -126,7 +145,7 @@ const newFigure = () => {
   figures.push(figure);
 
   // For every figure placed, we give a POINT.
-  incrementScore();
+  // incrementScore();
 }
 
 const generateInitialTestingFigures = (offset?: number) => {
@@ -136,9 +155,14 @@ const generateInitialTestingFigures = (offset?: number) => {
   figures.push(figure1);
 };
 
-newFigure();
+export const start = () => {
+  // TODO: Resize
+  renderGrid();
+  newFigure();
+  // For testing. TODO: Remove
+  generateInitialTestingFigures();
+};
 
-// For testing. TODO: Remove
-generateInitialTestingFigures();
+console.log('Game JS Initialized OK.');
 
-console.log('Game JS loaded.');
+start();

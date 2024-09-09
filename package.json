@@ -4,7 +4,8 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "rollup-plugin-copy": "^3.5.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -15,7 +16,9 @@
     "dev:game": "bun --watch build game/src/main.ts --outdir game/gamedist",
     "dev:server": "bun run --hot server/src/server.ts",
     "build:game": "bun build game/src/main.ts --outdir game/gamedist",
-    "build:docker": "bun run build && docker build -t bun-pixi-game ."
+    "build:vite": "cd game && bun run vite build",
+    "build:docker": "bun run build && docker build -t bun-pixi-game .",
+    "preview": "cd game && bun run vite preview"
   },
   "workspaces": [
     "game",
