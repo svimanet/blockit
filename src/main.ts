@@ -1,5 +1,3 @@
-console.log("TIME TO DO STUFF");
-
 import {
   Application,
   FederatedPointerEvent,
@@ -15,41 +13,44 @@ import {
   SearchAndDestroy
 } from './lineCompletion';
 
-console.log("DOING STUFF");
-
-const app = new Application({
-  background: '#333333',
-  width: 32*10,
-  height: 32*15,
-});
-
-app.stage.eventMode = 'static';
-app.stage.hitArea = app.screen;
+// Default to mobile min-width
+const width = window.innerWidth || 320;
+// Default to 150% (1.5 times) of width
+let height = width * 1.5;
+let app: Application;
 
 try {
   const gameContainer = document.getElementById('game') as HTMLDivElement;
+  height = gameContainer.clientHeight;
+  app = new Application({
+    background: '#333333',
+    width,
+    height,
+  });
+
+  app.stage.eventMode = 'static';
+  app.stage.hitArea = app.screen;
   gameContainer.appendChild(app.view as HTMLCanvasElement);
   console.log('Successfully attached game window');
 }
 catch (err) {
-  console.error('Failed to attach game window', err);
+  console.error('Failed at something. Idk. Here\'s a clue:', err);
+  throw err;
 }
 
-console.log('DID STUFF');
+const incrementScore = (increment?: number) => {
+  const scoreInput = document.getElementById('score') as HTMLSpanElement;
 
-// const incrementScore = (increment?: number) => {
-//   const scoreInput = document.getElementById('score') as HTMLInputElement
+  let score = Number(scoreInput.innerText);
+  if (isNaN(score)) {
+    score = 0;
+  }
+  else {
+    score += increment || 1;
+  }
 
-//   let score = Number(scoreInput.value);
-//   if (isNaN(score)) {
-//     score = 0;
-//   }
-//   else {
-//     score += increment || 1;
-//   }
-
-//   scoreInput.value = String(score);
-// };
+  scoreInput.innerText = String(score);
+};
 
 const numCells = 10;
 const cellSize = 32;
@@ -145,7 +146,7 @@ const newFigure = () => {
   figures.push(figure);
 
   // For every figure placed, we give a POINT.
-  // incrementScore();
+  incrementScore();
 }
 
 const generateInitialTestingFigures = (offset?: number) => {

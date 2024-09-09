@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <script src="./htmx.js"></script>
+    <link rel="stylesheet" href="./style.css">
+    <title>Gmae</title>
+  </head>
+  <body>
+
+    <header>
+      <h1>Gaem</h1>
+      <p>Score: <span id="score">0</span></p>
+      <button
+        hx-get="game.js"
+        hx-trigger="click"
+        hx-swap="none"
+        hx-on="htmx:afterRequest: this.remove(); runFetchedScript(this);"
+      >
+        load game
+      </button>
+    </header>
+
+    <div id="game"></div>
+
+    <script>
+        runFetchedScript = (button) => {
+          fetch(button.getAttribute('hx-get'))
+          .then(response => response.text())
+          .then(scriptContent => {
+            const scriptElement = document.createElement('script');
+            scriptElement.textContent = scriptContent;
+            document.body.appendChild(scriptElement);
+            button.remove();
+          })
+          .catch(error => console.error('Error loading script:', error));
+        }
+    </script>
+
+  </body>
+</html>

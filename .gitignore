@@ -1,7 +1,4 @@
-bun.lockb
-mydb.sqlite
 node_modules
-game/gamedist
 
 
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
@@ -124,7 +121,6 @@ out
 # Nuxt.js build / generate output
 
 .nuxt
-dist
 
 # Gatsby files
 
