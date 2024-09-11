@@ -5,7 +5,8 @@
 }
 
 html {
-  height: 100vh;
+  height: 100%;
+  background-color: gray;
 }
 
 body {
@@ -15,11 +16,14 @@ body {
 header {
   margin: 0 auto;
   width: fit-content;
+  position: absolute;
+  background-color: rgba(100, 100, 100, 0.4);
 }
 
 #game {
   height: 100%;
   display: flex;
+  overflow: auto;
 }
 
 canvas {

@@ -109,33 +109,42 @@ const generateFullRowOfFigures = (offset?: number) => {
 /**
  * Render a black line grid for user experience.
  */
-const renderGrid = () => {
+const renderGrid = (
+  gridsize: number,
+  cellsize: number,
+  sidepadding: number,
+) => {
   const grid = new Graphics();
   grid.lineStyle(2, 0x000000, 1);
   for (let i = 0; i < numCells + 1; i++) {
-    grid.moveTo(i * cellSize + xpadding, ypadding);
-    grid.lineTo(i * cellSize + xpadding, gridSize + ypadding);
-    grid.moveTo(xpadding, i * cellSize + ypadding);
-    grid.lineTo(gridSize + xpadding, i * cellSize + ypadding);
+    grid.moveTo(i * cellsize + sidepadding, sidepadding);
+    grid.lineTo(i * cellsize + sidepadding, gridsize + sidepadding);
+    grid.moveTo(sidepadding, i * cellsize + sidepadding);
+    grid.lineTo(gridsize + sidepadding, i * cellsize + sidepadding);
   }
   app.stage.addChild(grid);
 };
-
 
 /* ---------------------------------------------------------------- */
 /* TODO: Refactor everything before this line, and some of the after*/
 /* ---------------------------------------------------------------- */
 
+const gameContainer = document.getElementById('game') as HTMLDivElement;
+
+const width = gameContainer.clientWidth;
+const height = gameContainer.clientHeight;
+const sidepadding = (width / 100) * 5; // 5% on both sides
+const dynamicCellSize = (width - (sidepadding*2)) / 10;
 
 const app = new Application({
   background: '#333333',
-  resizeTo: window,
+  resizeTo: window
 });
 app.stage.eventMode = 'static';
 app.stage.hitArea = app.screen;
 
 const numCells = 10;
-const cellSize = 32;
+const cellSize = dynamicCellSize;
 const gridSize = numCells * cellSize;
 
 let widthDiff = window.innerWidth - gridSize;
@@ -167,7 +176,11 @@ app.stage.on('pointerup', () => {
 });
 
 // TODO: Resize
-renderGrid();
+renderGrid(
+  gridSize,
+  cellSize,
+  sidepadding
+);
 
 const figures = Array<Figure>();
 
@@ -175,7 +188,6 @@ newFigure();
 generateFullRowOfFigures();
 generateFullRowOfFigures(64);
 
-const gameContainer = document.getElementById('game') as HTMLDivElement;
 gameContainer.appendChild(app.view as HTMLCanvasElement);
 
 console.log('Game JS loaded.');
