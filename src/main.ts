@@ -82,28 +82,14 @@ const checkLineCompletion = () => {
 /**
  * Generate new figure to start with
  */
-const newFigure = () => {
+const newFigure = (startpos:{x:number,y:number}) => {
+  const { x, y } = startpos;
   const shape = randomShape();
   const setter = setDragTarget;
-  const figure = new Figure(shape, setter, app, cellSize);
-  figure.setPos(0, -192);
+  const figure = new Figure(shape, setter, app, cellSize, sidepadding);
+  // Position it below grid (pluss padding)
+  figure.setPos(x,y);
   figures.push(figure);
-}
-
-/**
- * TESTING function for ez starting tests
- * @param offset 
- */
-const generateFullRowOfFigures = (offset?: number) => {
-  const figure1 = new Figure('I', setDragTarget, app, cellSize);
-  figure1.setPos(0, 64+(offset || 0));
-  figures.push(figure1);
-  const figure2 = new Figure('I', setDragTarget, app, cellSize);
-  figure2.setPos(128, 64+(offset || 0));
-  figures.push(figure2);
-  const figure3 = new Figure('O', setDragTarget, app, cellSize);
-  figure3.setPos(256, 64+(offset || 0));
-  figures.push(figure3);
 }
 
 /**
@@ -126,7 +112,7 @@ const renderGrid = (
 };
 
 /* ---------------------------------------------------------------- */
-/* TODO: Refactor everything before this line, and some of the after*/
+/* RUNTIME STUFFS                                                   */
 /* ---------------------------------------------------------------- */
 
 const gameContainer = document.getElementById('game') as HTMLDivElement;
@@ -146,6 +132,10 @@ app.stage.hitArea = app.screen;
 const numCells = 10;
 const cellSize = dynamicCellSize;
 const gridSize = numCells * cellSize;
+const figureStartPos = {
+  x:256, // TODO more dynamic x pos i guess
+  y:(cellSize*10)+(sidepadding*2)
+};
 
 let widthDiff = window.innerWidth - gridSize;
 let xpadding = widthDiff / 2;
@@ -166,11 +156,11 @@ app.stage.on('pointermove', (e: FederatedPointerEvent) => {
 /* Clear dragTarget whenever mousebutton is released in app. */
 app.stage.on('pointerup', () => {
   if (dragTarget) {
-    const moved = dragTarget.stopMoving(figures);
+    const moved = dragTarget.stopMoving(figures, cellSize, sidepadding, figureStartPos);
     dragTarget = undefined;
     if (moved) {
       checkLineCompletion();
-      newFigure();
+      newFigure(figureStartPos);
     }
   }
 });
@@ -184,9 +174,7 @@ renderGrid(
 
 const figures = Array<Figure>();
 
-newFigure();
-generateFullRowOfFigures();
-generateFullRowOfFigures(64);
+newFigure(figureStartPos);
 
 gameContainer.appendChild(app.view as HTMLCanvasElement);
 

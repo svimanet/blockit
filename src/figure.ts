@@ -1,6 +1,6 @@
 import { Application, Container, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { FigureNode, Shape } from './types';
-import { grid64, shapes } from './utils';
+import { shapes } from './utils';
 
 export class Figure implements Figure {
   color: number;
@@ -23,12 +23,14 @@ export class Figure implements Figure {
     setDragTarget: (target: Figure) => void,
     app: Application,
     cellSize: number,
+    sidepadding: number,
   ){
     this.container = new Container();
     this.color = 0;
     this.points = 0;
     this.shape = shape;
-    this.nodes = this.makeNodes(shapes[shape], this.container, cellSize);
+    // TODO: Fix shapes. Was dependent on static grid/cell size. idk some math shit i cant think of rn
+    this.nodes = this.makeNodes([{x:0,y:0}], this.container, cellSize, sidepadding);
     this.clickPosition = {
       x: this.container.x,
       y: this.container.y
@@ -56,20 +58,15 @@ export class Figure implements Figure {
     initialNodeCoors: FigureNode[],
     container: Container,
     cellSize: number,
+    sidepadding: number,
   ): Graphics[] => {
-    const cells = 10;
-    const gridSize = cells * cellSize;
-    const screenWidth = window.innerWidth;
-    let widthDiff = screenWidth - gridSize;
-    let xpadding = widthDiff / 2;
-    let ypadding = 200;
     const randomColor = Math.floor(Math.random()*16777215);
 
     const nodes: Graphics[] = [];
     initialNodeCoors.forEach((node) => {
       const square = new Graphics();
       square.beginFill(randomColor);
-      square.drawRect(node.x + xpadding+3, node.y + ypadding+3, cellSize-6, cellSize-6);
+      square.drawRect(node.x + sidepadding+3, node.y + sidepadding+3, cellSize-6, cellSize-6);
       square.endFill();
       container.addChild(square);
       nodes.push(square);
@@ -114,9 +111,9 @@ export class Figure implements Figure {
    * Check if any grid axis is filled ...
    * @returns true if the figure was placed on the grid, false if not.
   */
-  stopMoving(figures: Figure[]): boolean { 
+  stopMoving(figures: Figure[], cellsize: number, sidepadding: number, figureStartPos: {x:number,y:number}): boolean { 
     // Calculate closest symetrical grid pos
-    const gridSnap = this.snapFigureToGrid();
+    const gridSnap = this.snapFigureToGrid(cellsize, sidepadding);
 
     // Snap to closest grid cells possible
     this.container.x = gridSnap.x;
@@ -135,9 +132,13 @@ export class Figure implements Figure {
     //   this.container.y = -192;
     //   return false;
     // }
+    const positions: number[] = [];
+    for (let x=0; x<=10; x++) {
+      positions.push((cellsize*x));
+    }
 
     const figureBot = this.container.y + this.container.height;
-    const gridTop = grid64[0];
+    const gridTop = positions[0];
     const yOOB = figureBot < gridTop;
 
     if (yOOB) {
@@ -149,8 +150,8 @@ export class Figure implements Figure {
     // Check for collision with other figures, after adjusting for grid snap
     const collision = this.collision(figures);
     if (collision) {
-      this.container.x = 0;
-      this.container.y = -192;
+      this.container.x = figureStartPos.x;
+      this.container.y = figureStartPos.y;
       return false;
     }
     else {
@@ -184,22 +185,34 @@ export class Figure implements Figure {
     Return coordinates for closest 'perfect symetrical' position in grid.
     If the figure is outside the grid, snap it back to the grid as closest possible pos.
   */
-  snapFigureToGrid = (): { x: number, y: number } => {
-    let closestX = this.container.x;
-    let closestY = this.container.y;
+  snapFigureToGrid = (cellsize:number, sidepadding:number): { x: number, y: number } => {
+    let x = this.container.x;
+    let y = this.container.y;
+
+    const gridsize = cellsize*10;
+
+    // In theory the cells anly consist of 10*10 number combos,
+    // but there is also only 10 numbers to coose from
+    // x (width pos) wil always be 0, 64, 128, ..., if the cells are 64 big.
+    // the same goes for y, since they are square.
+    // so we find the starting pos (after padding), and the next cell pos by cellsize
+    const positions: number[] = [];
+    for (let x=0; x<=10; x++) {
+      positions.push((cellsize*x));
+    }
 
     /* Select closest grid corner for this x and y */
     /* Reduce through options, and return closest. */
 
-    if (!grid64.includes(this.container.x)) {
-      closestX = grid64.reduce((prev, curr) => {
+    if (!positions.includes(this.container.x)) {
+      x = positions.reduce((prev, curr) => {
         const currDiff = Math.abs(curr - this.container.x);
         const prevDiff = Math.abs(prev - this.container.x);
         return (currDiff < prevDiff ? curr : prev);
       });
     }
-    if (!grid64.includes(this.container.y)) {
-      closestY = grid64.reduce((prev, curr) => {
+    if (!positions.includes(this.container.y)) {
+      y = positions.reduce((prev, curr) => {
         const currDiff = Math.abs(curr - this.container.y);
         const prevDiff = Math.abs(prev - this.container.y);
         return (currDiff < prevDiff ? curr : prev);
@@ -212,14 +225,14 @@ export class Figure implements Figure {
     const numVerticalCells = Math.round(this.container.height / 64);
 
     const maxX = this.container.x + this.container.width/2 ;
-    if (maxX > grid64[grid64.length - 1]) {
-      closestX = grid64[grid64.length - (numHorizontalCells)];
+    if (maxX > positions[positions.length - 1]) {
+      x = positions[positions.length - (numHorizontalCells)];
     }
     const maxY = this.container.y + this.container.height/2;
-    if (maxY > grid64[grid64.length - 1]) {
-      closestY = grid64[grid64.length - (numVerticalCells)];
+    if (maxY > positions[positions.length - 1]) {
+      y = positions[positions.length - (numVerticalCells)];
     }
 
-    return { x: closestX, y: closestY};
+    return { x: x, y: y};
   }
 }
