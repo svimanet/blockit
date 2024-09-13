@@ -1,6 +1,6 @@
 import { Application, Container, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { FigureNode, Shape } from './types';
-import { shapes } from './utils';
+// import { shapes } from './utils';
 
 export class Figure implements Figure {
   color: number;
@@ -24,13 +24,14 @@ export class Figure implements Figure {
     app: Application,
     cellSize: number,
     sidepadding: number,
+    shapes: Record<Shape, FigureNode[]>,
   ){
     this.container = new Container();
     this.color = 0;
     this.points = 0;
     this.shape = shape;
     // TODO: Fix shapes. Was dependent on static grid/cell size. idk some math shit i cant think of rn
-    this.nodes = this.makeNodes([{x:0,y:0}], this.container, cellSize, sidepadding);
+    this.nodes = this.makeNodes(shapes[shape], this.container, cellSize, sidepadding);
     this.clickPosition = {
       x: this.container.x,
       y: this.container.y

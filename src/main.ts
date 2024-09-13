@@ -1,6 +1,6 @@
 import { Figure } from './figure';
 import { Application, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
-import { grid64, randomShape } from './utils';
+import { grid64, makeShapes, randomShape } from './utils';
 
 console.log('Game JS loading.');
 
@@ -86,7 +86,7 @@ const newFigure = (startpos:{x:number,y:number}) => {
   const { x, y } = startpos;
   const shape = randomShape();
   const setter = setDragTarget;
-  const figure = new Figure(shape, setter, app, cellSize, sidepadding);
+  const figure = new Figure(shape, setter, app, cellSize, sidepadding, shapes);
   // Position it below grid (pluss padding)
   figure.setPos(x,y);
   figures.push(figure);
@@ -141,6 +141,7 @@ let widthDiff = window.innerWidth - gridSize;
 let xpadding = widthDiff / 2;
 let ypadding = 200;
 
+const shapes = makeShapes(cellSize);
 
 // Target getter and setter for mouse event. Only one at a time on global scope.
 // Setter supplied to Figure constructor for container onclick target switching.

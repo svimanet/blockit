@@ -1,64 +1,28 @@
 import type { FigureNode, Shape } from "./types";
 
+export const makeShapes = (cellsize: number): Record<Shape, FigureNode[]> => {
+  const cz = cellsize;
+
+  const O: FigureNode[] = [
+    { x: 0, y: 0 },
+    { x: cz, y: cz},
+    { x: 0, y: cz },
+    { x: cz, y: 0 },
+  ];
+
+  return {
+    'O': O,
+    'I': O,
+    'I2': O,
+    'T': O,
+    'S': O,
+    'Z': O,
+    'J': O,
+    'L': O,
+  } as Record<Shape, FigureNode[]>;
+};
+
 // https://tetris.wiki/Tetromino
-// I O T S Z J L
-export const I = [
-  { x: 0, y: 0 },
-  { x: 32, y: 0 },
-  { x: 64, y: 0 },
-  { x: 96, y: 0 },
-];
-
-export const I2 = [
-  { x: 0, y: 0 },
-  { x: 0, y: 32 },
-  { x: 0, y: 64 },
-  { x: 0, y: 96 },
-];
-
-export const O = [
-  { x: 0, y: 0 },
-  { x: 32, y: 0 },
-  { x: 0, y: 32 },
-  { x: 32, y: 32 },
-];
-
-export const T = [
-  { x: 32, y: 0 },
-  { x: 0, y: 32 },
-  { x: 32, y: 32 },
-  { x: 64, y: 32 },
-];
-
-export const S = [
-  { x: 32, y: 0 },
-  { x: 64, y: 0 },
-  { x: 0, y: 32 },
-  { x: 32, y: 32 },
-];
-
-export const Z = [
-  { x: 0, y: 0 },
-  { x: 32, y: 0 },
-  { x: 32, y: 32 },
-  { x: 64, y: 32 },
-];
-
-export const J: FigureNode[] = [
-  { x: 0, y: 0 },
-  { x: 0, y: 32 },
-  { x: 32, y: 32 },
-  { x: 64, y: 32 },
-];
-
-export const L: FigureNode[] = [
-  { x: 64, y: 0 },
-  { x: 0, y: 32 },
-  { x: 32, y: 32 },
-  { x: 64, y: 32 },
-];
-
-export const shapes: Record<Shape, FigureNode[]> = {I, O, T, S, Z, J, L, I2};
 
 export const randomShape = (): Shape => {
   const shapestrings: Shape[] = ['I', 'O', 'T', 'S', 'Z', 'J', 'L', 'I2'];
