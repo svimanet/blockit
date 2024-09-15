@@ -111,11 +111,18 @@ const renderGrid = (
   app.stage.addChild(grid);
 };
 
+const incrementScore = (element: HTMLSpanElement, n:number): void => {
+  const val = Number(element.innerText);
+  const total: number = val + n;
+  element.innerText = String(total);
+};
+
 /* ---------------------------------------------------------------- */
 /* RUNTIME STUFFS                                                   */
 /* ---------------------------------------------------------------- */
 
 const gameContainer = document.getElementById('game') as HTMLDivElement;
+const scoreCounter = document.getElementById('score') as HTMLSpanElement;
 
 let width = gameContainer.clientWidth;
 const height = gameContainer.clientHeight;
@@ -168,6 +175,7 @@ app.stage.on('pointerup', () => {
     if (moved) {
       checkLineCompletion();
       newFigure(figureStartPos);
+      incrementScore(scoreCounter, 1);
     }
   }
 });
