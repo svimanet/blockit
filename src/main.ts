@@ -97,13 +97,17 @@ app.stage.on('pointermove', (e: FederatedPointerEvent) => {
 
 /* Clear dragTarget whenever mousebutton is released in app. */
 app.stage.on('pointerup', () => {
+  // deleteEmptyFigures(figures);
   if (dragTarget) {
     const moved = dragTarget.stopMoving(figures, cellSize, sidepadding, figureStartPos);
     dragTarget = undefined;
     if (moved) {
       console.log('figs:', figures.length);
-      checkLineCompletion(cellSize, sidepadding, figures);
-      deleteEmptyFigures(figures);
+      const complete = checkLineCompletion(cellSize, sidepadding, figures);
+      if (complete) {
+        // deleteEmptyFigures(figures);
+        incrementScore(scoreCounter, complete);
+      }
       newFigure(figureStartPos);
       incrementScore(scoreCounter, 1);
     }

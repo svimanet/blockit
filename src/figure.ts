@@ -5,7 +5,7 @@ import type { FigureNode, Shape } from './types';
 export class Figure implements Figure {
   color: number;
   points: number;
-  nodes: Graphics[];
+  // nodes: Graphics[];
   container: Container;
   shape: Shape;
   clickPosition: { x: number, y: number };
@@ -32,7 +32,8 @@ export class Figure implements Figure {
     this.shape = shape;
     // TODO: Fix shapes. Was dependent on static grid/cell size.
     // idk some math shit i cant think of rn
-    this.nodes = this.makeNodes(
+    // this.nodes = 
+    this.makeNodes(
       shapes[shape],
       this.container,
       cellSize,
@@ -68,10 +69,10 @@ export class Figure implements Figure {
     container: Container,
     cellSize: number,
     sidepadding: number,
-  ): Graphics[] => {
+  ): void => {
     const randomColor = Math.floor(Math.random()*16777215);
 
-    const nodes: Graphics[] = [];
+    // const nodes: Graphics[] = [];
     initialNodeCoors.forEach((node) => {
       const square = new Graphics();
       square.beginFill(randomColor);
@@ -83,10 +84,10 @@ export class Figure implements Figure {
       );
       square.endFill();
       container.addChild(square);
-      nodes.push(square);
+      // nodes.push(square);
     });
 
-    return(nodes);
+    // return(nodes);
   };
 
   /**
@@ -145,7 +146,6 @@ export class Figure implements Figure {
       || size.bottom > positions[positions.length-1]+sidepadding;
 
     if (oob) {
-      console.log(size);
       this.container.x = figureStartPos.x;
       this.container.y = figureStartPos.y;
       return false;
