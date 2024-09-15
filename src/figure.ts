@@ -30,14 +30,21 @@ export class Figure implements Figure {
     this.color = 0;
     this.points = 0;
     this.shape = shape;
-    // TODO: Fix shapes. Was dependent on static grid/cell size. idk some math shit i cant think of rn
-    this.nodes = this.makeNodes(shapes[shape], this.container, cellSize, sidepadding);
+    // TODO: Fix shapes. Was dependent on static grid/cell size.
+    // idk some math shit i cant think of rn
+    this.nodes = this.makeNodes(
+      shapes[shape],
+      this.container,
+      cellSize,
+      sidepadding
+    );
     this.clickPosition = {
       x: this.container.x,
       y: this.container.y
     };
 
     // Pointer down event, for setting this obj as global active drag target
+    // TODO: Why is this done here, should probably be done outside
     this.container.eventMode = 'static';
     this.container.cursor = 'pointer';
     this.container.on('pointerdown', 
@@ -54,7 +61,8 @@ export class Figure implements Figure {
     this.container.y = y;
   }
 
-  /* Create and render each node making up the figure. Nodes are rectangles. Why did i name them nodes. */
+  /* Create and render each node making up the figure.
+  Nodes are rectangles. Why did i name them nodes. */
   makeNodes = (
     initialNodeCoors: FigureNode[],
     container: Container,
@@ -67,7 +75,12 @@ export class Figure implements Figure {
     initialNodeCoors.forEach((node) => {
       const square = new Graphics();
       square.beginFill(randomColor);
-      square.drawRect(node.x + sidepadding+3, node.y + sidepadding+3, cellSize-6, cellSize-6);
+      square.drawRect(
+        node.x + sidepadding+3,
+        node.y + sidepadding+3,
+        cellSize-6,
+        cellSize-6
+      );
       square.endFill();
       container.addChild(square);
       nodes.push(square);
@@ -113,38 +126,28 @@ export class Figure implements Figure {
    * @returns true if the figure was placed on the grid, false if not.
   */
   stopMoving(figures: Figure[], cellsize: number, sidepadding: number, figureStartPos: {x:number,y:number}): boolean { 
-    // Calculate closest symetrical grid pos
+    // Snap to closest grid cells possible before checking anything
     const gridSnap = this.snapFigureToGrid(cellsize, sidepadding);
-
-    // Snap to closest grid cells possible
     this.container.x = gridSnap.x;
     this.container.y = gridSnap.y;
     this.container.alpha = 1;
 
-    // Check for out of bounds (outside grid)
-    // const xOOB = 
-    //   this.container.x > grid64[0] || 
-    //   this.container.x <= grid64[grid64.length-1];
-    // const yOOB = 
-    // this.container.y > grid64[0] || 
-    // this.container.y <= grid64[grid64.length-1];
-    // if (xOOB || yOOB) {
-    //   this.container.x = 0;
-    //   this.container.y = -192;
-    //   return false;
-    // }
+    // TODO: maybe this should be global
     const positions: number[] = [];
     for (let x=0; x<=10; x++) {
       positions.push((cellsize*x));
     }
 
-    const figureBot = this.container.y + this.container.height;
-    const gridTop = positions[0];
-    const yOOB = figureBot < gridTop;
+    const size = this.container.getBounds();
+    const oob = size.left < positions[0]+sidepadding
+      || size.top < positions[0]+sidepadding
+      || size.right > positions[positions.length-1]+sidepadding
+      || size.bottom > positions[positions.length-1]+sidepadding;
 
-    if (yOOB) {
-      this.container.x = 0;
-      this.container.y = -192;
+    if (oob) {
+      console.log(size);
+      this.container.x = figureStartPos.x;
+      this.container.y = figureStartPos.y;
       return false;
     }
 
@@ -194,9 +197,11 @@ export class Figure implements Figure {
 
     // In theory the cells anly consist of 10*10 number combos,
     // but there is also only 10 numbers to coose from
-    // x (width pos) wil always be 0, 64, 128, ..., if the cells are 64 big.
+    // x (width pos) wil always be 0, 64, 128, ..., 
+    // if the cells are 64 big.
     // the same goes for y, since they are square.
-    // so we find the starting pos (after padding), and the next cell pos by cellsize
+    // so we find the starting pos (after padding), 
+    // and the next cell pos by cellsize
     const positions: number[] = [];
     for (let x=0; x<=10; x++) {
       positions.push((cellsize*x));
