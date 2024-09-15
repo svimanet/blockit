@@ -77,12 +77,8 @@ const figureStartPos = {
   y:(cellSize*10)+(sidepadding*2)
 };
 
-let widthDiff = window.innerWidth - gridSize;
-let xpadding = widthDiff / 2;
-let ypadding = 200;
-
 const shapes = makeShapes(cellSize);
-const figures = Array<Figure>();
+let figures: Figure[] = [];
 
 // Target getter and setter for mouse event. Only one at a time on global scope.
 // Setter supplied to Figure constructor for container onclick target switching.
@@ -97,7 +93,6 @@ app.stage.on('pointermove', (e: FederatedPointerEvent) => {
 
 /* Clear dragTarget whenever mousebutton is released in app. */
 app.stage.on('pointerup', () => {
-  // deleteEmptyFigures(figures);
   if (dragTarget) {
     const moved = dragTarget.stopMoving(figures, cellSize, sidepadding, figureStartPos);
     dragTarget = undefined;
@@ -105,7 +100,7 @@ app.stage.on('pointerup', () => {
       console.log('figs:', figures.length);
       const complete = checkLineCompletion(cellSize, sidepadding, figures);
       if (complete) {
-        // deleteEmptyFigures(figures);
+        figures = deleteEmptyFigures(figures);
         incrementScore(scoreCounter, complete);
       }
       newFigure(figureStartPos);
