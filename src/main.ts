@@ -117,8 +117,14 @@ const renderGrid = (
 
 const gameContainer = document.getElementById('game') as HTMLDivElement;
 
-const width = gameContainer.clientWidth;
+let width = gameContainer.clientWidth;
 const height = gameContainer.clientHeight;
+
+// Make sure height is up to the task of 150% width.
+if (height < width*1.5) {
+  width = height / 1.5;
+}
+
 const sidepadding = (width / 100) * 5; // 5% on both sides
 const dynamicCellSize = (width - (sidepadding*2)) / 10;
 
@@ -133,7 +139,7 @@ const numCells = 10;
 const cellSize = dynamicCellSize;
 const gridSize = numCells * cellSize;
 const figureStartPos = {
-  x:256, // TODO more dynamic x pos i guess
+  x: sidepadding, // TODO more dynamic x pos i guess
   y:(cellSize*10)+(sidepadding*2)
 };
 
