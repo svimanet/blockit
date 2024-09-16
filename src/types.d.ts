@@ -15,4 +15,9 @@ export interface FigureNode {
   y: number;
 }
 
-export type Shape = 'I' | 'O' | 'T' | 'S' | 'Z' | 'J' | 'L' | 'I2';
+export type Shape = 
+  Z1 | Z2 | Z3 | Z4 |
+  T1 | T2 | T3 | T4 |
+  L1 | L2 | L3 | L4 |
+  I1 | I2 | 
+  O;

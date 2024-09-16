@@ -1,64 +1,113 @@
 import type { FigureNode, Shape } from "./types";
 
 export const makeShapes = (cellsize: number): Record<Shape, FigureNode[]> => {
-  const cz = cellsize;
+  const c1 = cellsize;
+  const c2 = c1*2;
+  const c3 = c1*3;
 
   const O: FigureNode[] = [
     { x: 0, y: 0 },
-    { x: cz, y: cz},
-    { x: 0, y: cz },
-    { x: cz, y: 0 },
+    { x: c1, y: c1},
+    { x: 0, y: c1 },
+    { x: c1, y: 0 },
   ];
-  const I: FigureNode[] = [
+  const I1: FigureNode[] = [
     { x:0, y:0 },
-    { x:0, y:cz},
-    { x:0, y:cz*2},
-    { x:0, y:cz*3}
+    { x:0, y:c1},
+    { x:0, y:c2},
+    { x:0, y:c3}
   ];
   const I2 = [
     {x:0, y:0},
-    {x:cz, y:0},
-    {x:cz*2, y:0},
-    {x:cz*3, y:0},
+    {x:c1, y:0},
+    {x:c2, y:0},
+    {x:c3, y:0},
   ];
-  const T = [
+  const Z1 = [
     {x:0, y:0},
-    {x:cz, y:0},
-    {x:cz*2, y:0},
-    {x:cz, y:cz},
+    {x:c1, y:0},
+    {x:c1, y:c1},
+    {x:c2, y:c1},
   ];
-  const S = [
+  const Z2 = [
+    {x:0, y:c1},
+    {x:c1, y:0},
+    {x:c1, y:c1},
+    {x:c2, y:0},
+  ];
+  const Z3 = [
     {x:0, y:0},
-    {x:0, y:cz},
-    {x:cz, y:cz},
-    {x:cz, y:cz*2},
+    {x:0, y:c1},
+    {x:c1, y:c1},
+    {x:c1, y:c2},
   ];
-  const Z = [
+  const Z4 = [
+    {x:0, y:c1},
+    {x:c1, y:0},
+    {x:c1, y:c1},
+    {x:0, y:c2},
+  ];
+  const L1 = [
     {x:0, y:0},
-    {x:cz, y:cz},
-    {x:cz, y:0},
-    {x:cz*2, y:0},
+    {x:0, y:c1},
+    {x:0, y:c2},
+    {x:c1, y:c2},
   ];
-
-  // T1-4, L1-4, Z1-4
+  const L2 = [
+    {x:0, y:0},
+    {x:0, y:c1},
+    {x:0, y:c2},
+    {x:c1, y:0},
+  ];
+  const L3 = [
+    {x:0, y:0},
+    {x:c1, y:0},
+    {x:c2, y:0},
+    {x:c2, y:c1},
+  ];
+  const L4 = [
+    {x:0, y:c1},
+    {x:c1, y:c1},
+    {x:c2, y:c1},
+    {x:c2, y:0},
+  ];
+  const T1 = [
+    {x:0, y:0},
+    {x:c1, y:0},
+    {x:c2, y:0},
+    {x:c1, y:c1},
+  ];
+  const T2 = [
+    {x:0, y:0},
+    {x:0, y:c1},
+    {x:0, y:c2},
+    {x:c1, y:c1},
+  ];
+  const T3 = [
+    {x:c1, y:0},
+    {x:0, y:c1},
+    {x:c1, y:c1},
+    {x:c2, y:c1},
+  ];
+  const T4 = [
+    {x:c1, y:0},
+    {x:0, y:c1},
+    {x:c1, y:c1},
+    {x:c2, y:c1},
+  ];
 
   return {
-    'O': O,
-    'I': I,
-    'I2': I2,
-    'T': T,
-    'S': S,
-    'Z': Z,
-    'J': Z,
-    'L': S,
+    O, I1, I2,
+    T1, T2, T3, T4,
+    L1, L2, L3, L4,
+    Z1, Z2, Z3, Z4
   } as Record<Shape, FigureNode[]>;
 };
 
-// https://tetris.wiki/Tetromino
-
-export const randomShape = (): Shape => {
-  const shapestrings: Shape[] = ['I', 'O', 'T', 'S', 'Z', 'J', 'L', 'I2'];
-  return shapestrings[Math.floor(Math.random() * shapestrings.length)];
+export const randomShape = (figures: Record<Shape, FigureNode[]>): Shape => {
+  const shapes  = Object.keys(figures) as Shape[];
+  const randShape = shapes[Math.floor(Math.random() * shapes.length)];
+  return randShape;
 }
 
 export const grid64 = [0, 32, 64, 96, 128, 160, 192, 224, 256, 288];

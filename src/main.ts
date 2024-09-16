@@ -2,6 +2,7 @@ import { Figure } from './figure';
 import { Application, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
 import { makeShapes, randomShape } from './utils';
 import { checkLineCompletion, deleteEmptyFigures } from './utils/lineCompletion';
+import type { FigureNode, Shape } from './types';
 
 console.log('Game JS loading.');
 
@@ -9,9 +10,9 @@ console.log('Game JS loading.');
 /**
  * Generate new figure to start with
  */
-const newFigure = (startpos:{x:number,y:number}) => {
+const newFigure = (startpos:{x:number,y:number}, shapes: Record<Shape, FigureNode[]>) => {
   const { x, y } = startpos;
-  const shape = randomShape();
+  const shape = randomShape(shapes);
   const setter = setDragTarget;
   const figure = new Figure(shape, setter, app, cellSize, sidepadding, shapes);
   // Position it below grid (pluss padding)
@@ -103,7 +104,7 @@ app.stage.on('pointerup', () => {
         figures = deleteEmptyFigures(figures);
         incrementScore(scoreCounter, complete);
       }
-      newFigure(figureStartPos);
+      newFigure(figureStartPos, shapes);
       incrementScore(scoreCounter, 1);
     }
   }
@@ -116,7 +117,7 @@ renderGrid(
   sidepadding
 );
 
-newFigure(figureStartPos);
+newFigure(figureStartPos, shapes);
 
 gameContainer.appendChild(app.view as HTMLCanvasElement);
 

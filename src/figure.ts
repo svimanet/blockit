@@ -180,6 +180,7 @@ export class Figure implements Figure {
             console.log('COLLISION');
             return true;
           }
+          return false;
         });
       });
     });
