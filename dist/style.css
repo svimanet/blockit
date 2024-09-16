@@ -13,11 +13,10 @@ body {
   height: 100%;
 }
 
-header {
-  margin: 0 auto;
+#header {
   width: fit-content;
-  position: absolute;
-  background-color: rgba(100, 100, 100, 0.4);
+  margin: 0 auto;
+  color: white;
 }
 
 #game {

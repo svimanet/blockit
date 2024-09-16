@@ -1,27 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html style="background-color: #333;">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <script src="./htmx.js"></script>
     <link rel="stylesheet" href="./style.css">
     <title>Gmae</title>
   </head>
   <body>
 
-    <header>
-      <h1>Gaem</h1>
-      <p>Score: <span id="score">0</span></p>
-      <button
-        hx-get="game.js"
-        hx-trigger="click"
-        hx-swap="none"
-        hx-on="htmx:afterRequest: this.remove(); runFetchedScript(this);"
-      >
-        load game
-      </button>
-    </header>
+    <div id="header" role="banner">
+      <p><span id="score">0</span> Points</p>
+    </div>
 
-    <div id="game"></div>
+    <div id="game">
+      <script src="./game.js"></script>
+    </div>
 
     <script>
         runFetchedScript = (button) => {
