@@ -1,6 +1,6 @@
 
 import type { Application } from "pixi.js";
-import { Figure } from "../figure";
+import { Figure } from "./figure";
 import type { FigureNode, Shape } from "../types";
 import { randomShape } from "./shapes";
 

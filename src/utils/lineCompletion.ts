@@ -1,6 +1,6 @@
 import type { DisplayObject, Graphics } from "pixi.js";
 import type { FigureNode, Figure } from "../types";
-import type { Figure as Fig } from "../figure";
+import type { Figure as Fig } from "../figure/figure";
 
 /**
  * Check for any horizontal/vertical line completions,

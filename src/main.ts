@@ -2,12 +2,11 @@ console.log('Game JS loading.');
 
 import { checkLineCompletion, deleteEmptyFigures } from './utils/lineCompletion';
 import { newRandomFigure } from './figure/utils';
-import { Figure } from './figure';
+import { Figure } from './figure/figure';
 import { makeShapes } from './figure/shapes';
 import { renderGrid } from './utils/grid';
 import { Application } from 'pixi.js';
-import { incrementScore } from './utils';
-
+import { incrementScore } from './utils/score';
 
 const gameContainer = document.getElementById('game') as HTMLDivElement;
 const scoreCounter = document.getElementById('score') as HTMLSpanElement;

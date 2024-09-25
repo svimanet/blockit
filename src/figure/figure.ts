@@ -1,9 +1,11 @@
 import { Application, Container, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { FigureNode, Shape } from '../types';
+// import { shapes } from './utils';
 
 export class Figure implements Figure {
   color: number;
   points: number;
+  // nodes: Graphics[];
   container: Container;
   shape: Shape;
   clickPosition: { x: number, y: number };
@@ -28,6 +30,9 @@ export class Figure implements Figure {
     this.color = 0;
     this.points = 0;
     this.shape = shape;
+    // TODO: Fix shapes. Was dependent on static grid/cell size.
+    // idk some math shit i cant think of rn
+    // this.nodes = 
     this.makeNodes(
       shapes[shape],
       this.container,
@@ -39,6 +44,7 @@ export class Figure implements Figure {
       y: this.container.y
     };
 
+    // Pointer down event, for setting this obj as global active drag target
     // TODO: Why is this done here, should probably be done outside
     this.container.eventMode = 'static';
     this.container.cursor = 'pointer';
@@ -47,6 +53,7 @@ export class Figure implements Figure {
       this.clickPosition = { x: e.clientX, y: e.clientY };
       setDragTarget(this);
     });
+
     app.stage.addChild(this.container);
   }
 
@@ -65,6 +72,7 @@ export class Figure implements Figure {
   ): void => {
     const randomColor = Math.floor(Math.random()*16777215);
 
+    // const nodes: Graphics[] = [];
     initialNodeCoors.forEach((node) => {
       const square = new Graphics();
       square.beginFill(randomColor);
@@ -76,7 +84,10 @@ export class Figure implements Figure {
       );
       square.endFill();
       container.addChild(square);
+      // nodes.push(square);
     });
+
+    // return(nodes);
   };
 
   /**
@@ -115,30 +126,25 @@ export class Figure implements Figure {
    * Check if any grid axis is filled ...
    * @returns true if the figure was placed on the grid, false if not.
   */
-  stopMoving(
-    figures: Figure[],
-    cellsize: number,
-    toppadding: number,
-    figureStartPos: {x:number,y:number},
-    edgepadding: number
-  ): boolean { 
-    this.container.alpha = 1;
+  stopMoving(figures: Figure[], cellsize: number, sidepadding: number, figureStartPos: {x:number,y:number}): boolean { 
     // Snap to closest grid cells possible before checking anything
-    const gridSnap = this.snapFigureToGrid(cellsize, toppadding, edgepadding);
+    const gridSnap = this.snapFigureToGrid(cellsize, sidepadding);
+    this.container.x = gridSnap.x;
+    this.container.y = gridSnap.y;
+    this.container.alpha = 1;
 
     // TODO: maybe this should be global
     const positions: number[] = [];
-    for (let x=0; x<=11; x++) {
-      positions.push(((cellsize*x)));
+    for (let x=0; x<=10; x++) {
+      positions.push((cellsize*x));
     }
 
-    // Check for Out Of Bounds placement.
-    // Reset position and return if OOB.
-    const bounds = this.container.getBounds();
-    const oob = bounds.left < positions[0]+edgepadding
-      || bounds.top < positions[0]+toppadding
-      || bounds.right > positions[positions.length-1]+edgepadding
-      || bounds.bottom > positions[positions.length-1]+toppadding;
+    const size = this.container.getBounds();
+    const oob = size.left < positions[0]+sidepadding
+      || size.top < positions[0]+sidepadding
+      || size.right > positions[positions.length-1]+sidepadding
+      || size.bottom > positions[positions.length-1]+sidepadding;
+
     if (oob) {
       this.container.x = figureStartPos.x;
       this.container.y = figureStartPos.y;
@@ -146,21 +152,16 @@ export class Figure implements Figure {
     }
 
     // Check for collision with other figures, after adjusting for grid snap
-    // Reset position and return if collision
     const collision = this.collision(figures);
     if (collision) {
       this.container.x = figureStartPos.x;
       this.container.y = figureStartPos.y;
       return false;
     }
-
-    // TODO: Figure out where this offset comes from..
-    // offset by just a little less than half a cell, idk why, it bothers me
-    this.container.x = gridSnap.closestX.x - (cellsize/1.8);
-    this.container.y = gridSnap.closestY.y - (cellsize/1.8);
-
-    this.container.eventMode = 'none';
-    return true;
+    else {
+      this.container.eventMode = 'none';
+      return true;
+    }
   }
 
   collision(figures: Figure[]): boolean {
@@ -189,36 +190,56 @@ export class Figure implements Figure {
     Return coordinates for closest 'perfect symetrical' position in grid.
     If the figure is outside the grid, snap it back to the grid as closest possible pos.
   */
-  snapFigureToGrid = (cellsize:number, toppadding:number, edgepadding: number) => {
+  snapFigureToGrid = (cellsize:number, sidepadding:number): { x: number, y: number } => {
     let x = this.container.x;
     let y = this.container.y;
+
     const gridsize = cellsize*10;
 
+    // In theory the cells anly consist of 10*10 number combos,
+    // but there is also only 10 numbers to coose from
+    // x (width pos) wil always be 0, 64, 128, ..., 
+    // if the cells are 64 big.
+    // the same goes for y, since they are square.
+    // so we find the starting pos (after padding), 
+    // and the next cell pos by cellsize
     const positions: number[] = [];
-    for (let i=0; i<=12; i++) {
-      positions.push(((cellsize*i)));
+    for (let x=0; x<=10; x++) {
+      positions.push((cellsize*x));
     }
 
-    let closestX: {x:number,diff:number} = {x:0, diff:cellsize*10};
-    let closestY: {y:number,diff:number} = {y:0, diff:cellsize*10};
+    /* Select closest grid corner for this x and y */
+    /* Reduce through options, and return closest. */
 
-    positions.forEach((pos) => {
+    if (!positions.includes(this.container.x)) {
+      x = positions.reduce((prev, curr) => {
+        const currDiff = Math.abs(curr - this.container.x);
+        const prevDiff = Math.abs(prev - this.container.x);
+        return (currDiff < prevDiff ? curr : prev);
+      });
+    }
+    if (!positions.includes(this.container.y)) {
+      y = positions.reduce((prev, curr) => {
+        const currDiff = Math.abs(curr - this.container.y);
+        const prevDiff = Math.abs(prev - this.container.y);
+        return (currDiff < prevDiff ? curr : prev);
+      });
+    }
 
-      console.group('snapFigureToGrid');
-      console.log(`x: ${pos}  x+edgepadding: ${pos+edgepadding}`);
-      console.log(`y: ${pos}  y+toppadding: ${pos+toppadding}`);
-      console.groupEnd();
+    /* Check if figure is out of bounds (partially out of the grid) and adjust */
 
-      const posDiffX = Math.round(Math.abs((pos+edgepadding) - this.container.x));
-      const posDiffY = Math.round(Math.abs((pos+toppadding) - this.container.y));
-      if (posDiffX < closestX.diff) {
-        closestX = { x: (pos+edgepadding), diff: posDiffX };
-      }
-      if (posDiffY < closestY.diff) {
-        closestY = { y: (pos+toppadding), diff: posDiffY };
-      }
-    });
+    const numHorizontalCells = Math.round(this.container.width / 64);
+    const numVerticalCells = Math.round(this.container.height / 64);
 
-    return ({ closestX, closestY });
+    const maxX = this.container.x + this.container.width/2 ;
+    if (maxX > positions[positions.length - 1]) {
+      x = positions[positions.length - (numHorizontalCells)];
+    }
+    const maxY = this.container.y + this.container.height/2;
+    if (maxY > positions[positions.length - 1]) {
+      y = positions[positions.length - (numVerticalCells)];
+    }
+
+    return { x: x, y: y};
   }
 }
