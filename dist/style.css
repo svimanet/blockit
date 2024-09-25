@@ -11,6 +11,7 @@ html {
 
 body {
   height: 100%;
+  overflow: hidden;
 }
 
 #header {
@@ -22,9 +23,8 @@ body {
 #game {
   height: 100%;
   display: flex;
-  overflow: auto;
 }
 
 canvas {
-  margin: auto;
+  margin: 0 auto;
 }
