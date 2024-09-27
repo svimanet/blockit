@@ -6,7 +6,7 @@ import { canFitI2, randomShape } from "./shapes";
 
 interface nRFProps {
   shapes: Record<Shape, FigureNode[]>;
-  setDragTarget: (target: Figure) => Figure;
+  setDragTarget: (target: Figure | undefined) => void;
   app: Application;
   cellsize: number;
   padding: number;

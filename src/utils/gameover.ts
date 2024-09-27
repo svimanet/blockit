@@ -1,28 +1,22 @@
 import { Application, Text as PixiText } from 'pixi.js';
 
-export const gameover = (app: Application) => {
+export const gameover = (app: Application, reset: (text: PixiText) => void) => {
   const text = new PixiText('Game Over!', {
     fontSize: 36,
     fill: 0xffffff,
     align: 'center',
   });
 
-  // Set the position of the text
   text.x = app.screen.width * .5;
   text.y = app.screen.width * .5;
-
-  // Anchor it to the center
   text.anchor.set(0.5);
 
-  // Add the text to the stage (scene)
   app.stage.addChild(text);
+  app.stage.removeAllListeners();
 
   const header = document.getElementById('header') as HTMLDivElement;
-  const hh = ''+header.innerHTML;
-  
-  const btn = '<button id="resetbtn">Restart</button>';
-  header.innerHTML = hh + btn;
-
-
-
+  const btn = document.createElement('button');
+  btn.textContent = 'Restart';
+  btn.onclick = () => reset(text);
+  header.append(btn);
 }
