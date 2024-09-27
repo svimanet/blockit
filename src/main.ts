@@ -5,8 +5,9 @@ import { canFitNewShape, newRandomFigure } from './figure/utils';
 import { Figure } from './figure/figure';
 import { makeShapes } from './figure/shapes';
 import { renderGrid } from './utils/grid';
-import { Application } from 'pixi.js';
+import { Application, BitmapText, Text as PixiText } from 'pixi.js';
 import { incrementScore } from './utils/score';
+import { gameover } from './utils/gameover';
 
 const gameContainer = document.getElementById('game') as HTMLDivElement;
 const scoreCounter = document.getElementById('score') as HTMLSpanElement;
@@ -77,8 +78,8 @@ app.stage.on('pointerup', () => {
       });
 
       if (!canFit) {
-        // document.getElementById('game')?.replaceWith('Game Over');
-        console.log('SKRIKING')
+        console.log('SKRIKING');
+        gameover(app);
       }
 
       incrementScore(scoreCounter, 1);
@@ -100,3 +101,5 @@ newRandomFigure({
 
 gameContainer.appendChild(app.view as HTMLCanvasElement);
 console.log('Game JS loaded.');
+
+gameover(app);

@@ -28,3 +28,7 @@ body {
 canvas {
   margin: 0 auto;
 }
+
+#resetbtn {
+  padding: .25rem;
+}
