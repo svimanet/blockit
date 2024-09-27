@@ -49,6 +49,8 @@ const reset = (gameover: Text) => {
     const fig = figures.pop();
     fig?.container.destroy();
   }
+
+  document.getElementById('btn')?.remove(); 
   const score = document.getElementById('score') as HTMLSpanElement;
   score.innerText = '0';
 
@@ -106,4 +108,4 @@ newRandomFigure({
 gameContainer.appendChild(app.view as HTMLCanvasElement);
 console.log('Game JS loaded.');
 
-// gameover(app, reset);
+gameover(app, reset);

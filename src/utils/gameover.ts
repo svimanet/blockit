@@ -17,6 +17,7 @@ export const gameover = (app: Application, reset: (text: PixiText) => void) => {
   const header = document.getElementById('header') as HTMLDivElement;
   const btn = document.createElement('button');
   btn.textContent = 'Restart';
+  btn.setAttribute('id', 'btn');
   btn.onclick = () => reset(text);
   header.append(btn);
 }
