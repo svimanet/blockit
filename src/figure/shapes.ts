@@ -109,3 +109,25 @@ export const randomShape = (figures: Record<Shape, FigureNode[]>): Shape => {
   const randShape = shapes[Math.floor(Math.random() * shapes.length)];
   return randShape;
 }
+
+/**
+ * Check if an horizontal I2 can fit in the grid
+ * @param grid 
+ * @returns 
+ */
+export const canFitI2 = (grid: number[][]): boolean => {
+  for (let x=0; x<10; x++) {
+    const row = grid[x];
+    let count = 0;
+    for (let y=0; y<10; y++) {
+      const col = row[y];
+      if (count >= 4) {
+        console.log(`found free slot after ${x}+${y} iterations`);
+        return true;
+      }
+      if (col === 0) count++;
+      else count = 0;
+    }
+  }
+  return false;
+}

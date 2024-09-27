@@ -1,7 +1,7 @@
 console.log('Game JS loading.');
 
 import { checkLineCompletion, deleteEmptyFigures } from './utils/lineCompletion';
-import { newRandomFigure } from './figure/utils';
+import { canFitNewShape, newRandomFigure } from './figure/utils';
 import { Figure } from './figure/figure';
 import { makeShapes } from './figure/shapes';
 import { renderGrid } from './utils/grid';
@@ -68,6 +68,14 @@ app.stage.on('pointerup', () => {
         padding,
         figures,
       });
+
+      canFitNewShape({
+        figure: figures[figures.length-1],
+        figures: figures,
+        cellsize,
+        padding
+      });
+
       incrementScore(scoreCounter, 1);
     }
   }
