@@ -1,4 +1,4 @@
-import type { FigureNode, Shape } from "../types";
+import type { Figure, FigureNode, Shape } from "../types";
 
 export const makeShapes = (cellsize: number): Record<Shape, FigureNode[]> => {
   const c1 = cellsize;
@@ -130,4 +130,8 @@ export const canFitI2 = (grid: number[][]): boolean => {
     }
   }
   return false;
+};
+
+export const canFitFigureInGrid = (figure: Figure, figures: Figure[]) => {
+
 }

@@ -69,12 +69,17 @@ app.stage.on('pointerup', () => {
         figures,
       });
 
-      canFitNewShape({
+      const canFit = canFitNewShape({
         figure: figures[figures.length-1],
         figures: figures,
         cellsize,
         padding
       });
+
+      if (!canFit) {
+        // document.getElementById('game')?.replaceWith('Game Over');
+        console.log('SKRIKING')
+      }
 
       incrementScore(scoreCounter, 1);
     }
