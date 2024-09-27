@@ -20,7 +20,6 @@ interface ClickProps {
   dragTarget: Figure | undefined;
   setDragTarget: (fig: Figure|undefined) => void;
   shapes: Record<Shape, FigureNode[]>;
-  reset: (text: Text) => void;
 }
 
 export const setClickListener = (props: ClickProps) => {
@@ -28,7 +27,7 @@ export const setClickListener = (props: ClickProps) => {
     app, cellsize, padding,
     figureStartPos, figures,
     dragTarget, setDragTarget,
-    setFigures, shapes, reset
+    setFigures, shapes
   } = props;
 
   /* Clear dragTarget whenever mousebutton is released in app. */
@@ -65,7 +64,7 @@ export const setClickListener = (props: ClickProps) => {
 
         if (!canFit) {
           console.log('SKRIKING');
-          gameover(app, reset);
+          gameover(app);
         }
 
         incrementScore(1);

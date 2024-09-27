@@ -1,6 +1,6 @@
 import { Application, Text as PixiText } from 'pixi.js';
 
-export const gameover = (app: Application, reset: (text: PixiText) => void) => {
+export const gameover = (app: Application) => {
   const text = new PixiText('Game Over!', {
     fontSize: 36,
     fill: 0xffffff,
@@ -18,6 +18,6 @@ export const gameover = (app: Application, reset: (text: PixiText) => void) => {
   const btn = document.createElement('button');
   btn.textContent = 'Restart';
   btn.setAttribute('id', 'btn');
-  btn.onclick = () => reset(text);
+  btn.onclick = () => location.reload();
   header.append(btn);
 }

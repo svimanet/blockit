@@ -38,46 +38,6 @@ const app = new Application({
 app.stage.eventMode = 'static';
 app.stage.hitArea = app.screen;
 
-/**
- * Reset all of the things
- * TODO: Fix the on click duplicaiton somehow
- * @param gameover 
- */
-const reset = (gameover: Text) => {
-  const figlen = 0 + figures.length;
-  for (let i=0; i<figlen; i++) {
-    const fig = figures.pop();
-    fig?.container.destroy();
-  }
-
-  document.getElementById('btn')?.remove(); 
-  const score = document.getElementById('score') as HTMLSpanElement;
-  score.innerText = '0';
-
-  gameover.removeFromParent();
-  gameover.destroy();
-
-  newRandomFigure({
-    pos: figureStartPos,
-    shapes,
-    setDragTarget,
-    app,
-    cellsize,
-    padding,
-    figures,
-  });
-
-  app.stage.on('pointermove', (e) => setMoveListener(e, dragTarget));
-  app.stage.on('pointerup', () => {
-    setClickListener({
-      app, cellsize, padding,
-      figureStartPos, figures,
-      setFigures, dragTarget,
-      setDragTarget, shapes,
-      reset
-    });
-  });
-};
 
 // Target getter and setter for mouse event. Only one at a time on global scope.
 // Setter supplied to Figure constructor for container onclick target switching.
@@ -90,7 +50,6 @@ app.stage.on('pointerup', () => {
     figureStartPos, figures,
     setFigures, dragTarget,
     setDragTarget, shapes,
-    reset
   });
 });
 
@@ -108,4 +67,4 @@ newRandomFigure({
 gameContainer.appendChild(app.view as HTMLCanvasElement);
 console.log('Game JS loaded.');
 
-gameover(app, reset);
+// gameover(app);
