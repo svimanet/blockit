@@ -4,14 +4,26 @@ import { resolve } from 'path';
 export default defineConfig({
   build: {
     outDir: 'dist',
-    emptyOutDir: false,
+    emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'src/main.ts'),
+        index: resolve(__dirname, 'index.html'),
+        sw: resolve(__dirname, 'src/pwa/sw.js'),
       },
       output: {
-        entryFileNames: 'game.js',
-        // format: 'iife', // Immediately-invoked function expression for a single file bundle
+        chunkFileNames: '[name]-[hash].[ext]',
+        assetFileNames: (file) => {
+          if (file.name === 'favicon.png') {
+            return 'public/favicon.png'
+          }
+          return 'public/[name]-[hash].[ext]'
+        },
+        entryFileNames: (file) => {
+          if (file.name === 'sw') {
+            return 'public/sw.js'
+          }
+         return  '[name]-[hash].js'
+        },
       },
     },
   },
