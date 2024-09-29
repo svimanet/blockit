@@ -16,16 +16,38 @@ body {
 
 #header {
   width: fit-content;
+  height: 3rem;
   margin: 0 auto;
   color: white;
+  display: flex;
+  border-bottom: 1px solid #b19eda;
 }
 
 #header p {
-  padding-top: .5rem;
+  margin-top: .5rem;
   font-size: 1.25rem;
   font-family: monospace;
   color: rgb(177, 158, 218);
-  border-bottom: 1px solid rgb(177, 158, 218);
+}
+
+#header button {
+  background: none;
+  color: black;
+  font-weight: 400;
+  font-family: monospace;
+  font-size: 1.5rem;
+  border: 1px solid transparent; 
+  border-radius: 8px;
+  margin: 0 0 0 1rem;
+  text-shadow:
+  -1px -1px 0 #b19eda, /* top-left */
+    1px -1px 0 #b19eda, /* top-right */
+  -1px  1px 0 #b19eda, /* bottom-left */
+    1px  1px 0 #b19eda; /* bottom-right */
+}
+
+#header button:hover {
+  cursor: pointer;
 }
 
 #game {
