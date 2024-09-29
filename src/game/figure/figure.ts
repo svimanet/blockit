@@ -1,4 +1,4 @@
-import { Application, Container, DisplayObject, FederatedPointerEvent, Graphics } from 'pixi.js';
+import { Application, Color, Container, DisplayObject, FederatedPointerEvent, Graphics, type ColorSource } from 'pixi.js';
 import type { FigureNode, Shape } from '../types';
 // import { shapes } from './utils';
 
@@ -70,12 +70,17 @@ export class Figure implements Figure {
     cellSize: number,
     sidepadding: number,
   ): void => {
-    const randomColor = Math.floor(Math.random()*16777215);
+    const randomValue = () => Math.floor(Math.random() * 77 + 150);
+    const r = randomValue();
+    const g = randomValue();
+    const b = randomValue();
+    const color: ColorSource = {
+      r,g,b
+    };
 
-    // const nodes: Graphics[] = [];
     initialNodeCoors.forEach((node) => {
       const square = new Graphics();
-      square.beginFill(randomColor);
+      square.beginFill(color);
       square.drawRect(
         node.x + sidepadding+3,
         node.y + sidepadding+3,
@@ -84,10 +89,7 @@ export class Figure implements Figure {
       );
       square.endFill();
       container.addChild(square);
-      // nodes.push(square);
     });
-
-    // return(nodes);
   };
 
   /**
