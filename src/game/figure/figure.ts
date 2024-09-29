@@ -70,7 +70,7 @@ export class Figure implements Figure {
     cellSize: number,
     sidepadding: number,
   ): void => {
-    const randomValue = () => Math.floor(Math.random() * 77 + 150);
+    const randomValue = () => Math.floor(Math.random() * 77 + 110);
     const r = randomValue();
     const g = randomValue();
     const b = randomValue();

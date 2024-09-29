@@ -2,8 +2,9 @@ import type { Application, DisplayObject, FederatedPointerEvent } from "pixi.js"
 import type { Figure } from "../figure/figure";
 import { checkLineCompletion } from "./lineCompletion";
 import { incrementScore } from "./score";
-import { newRandomFigure,  } from "../figure/utils";
+import { canFitNewShape, newRandomFigure,  } from "../figure/utils";
 import type { FigureNode, Shape } from "../types";
+import { gameover } from "./gameover";
 
 export const setMoveListener = (e: FederatedPointerEvent, dragTarget: Figure | undefined) => {
   if (dragTarget) dragTarget.move(e);
@@ -87,13 +88,18 @@ export const setPointerReleaseListener = (props: ClickProps) => {
         padding
       });
 
-      const complete = checkLineCompletion(
+      // Check for any complete vertical/horizontal lines ..
+      const complete: {
+        completed: false | number;
+        figures: Figure[]; // new list of figures after potential deletion ... TODO: Refactor SinglePurpose
+      } = checkLineCompletion(
         cellsize,
         padding,
         getFigures(),
         grid
       );
 
+      // New Figure generation, ready to place a new one.
       const newFig = newRandomFigure({
         pos: figureStartPos,
         shapes,
@@ -103,16 +109,31 @@ export const setPointerReleaseListener = (props: ClickProps) => {
         padding,
       });
 
-      // If any rows are complete, then we have probably deleted som figs
-      // so set the new figures to be that which we got returned
+      // If any rows were complete, then we might have deleted som figs // TODO: Refactor to more obvious
+      // so set the new figures to be that which we got returned,
+      // pluss the new figure.
       if (complete.completed) {
         setFigures([...complete.figures, newFig]);
         console.log('figs len after', getFigures().length);
         incrementScore(complete.completed);
       }
+      // Else, just set new figures to include the new one
       else {
         setFigures([...getFigures(), newFig]);
         incrementScore(1);
+      }
+
+      // If new figure cannot fit in grid ...
+      if (
+        !canFitNewShape({
+          figure: newFig,
+          figures: getFigures(),
+          cellsize,
+          padding
+        })
+      ) {
+        // Do ...
+        gameover(app);
       }
     }
   }
