@@ -10,7 +10,7 @@ const urlsToCache = [
 ];
 
 // Install event - cache static assets
-self.addEventListener('install', event => {
+self.addEventListener('install', (event: ExtendableEvent)  => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       console.log('Opened cache');
@@ -20,7 +20,7 @@ self.addEventListener('install', event => {
 });
 
 // Fetch event - serve cached content when offline
-self.addEventListener('fetch', event => {
+self.addEventListener('fetch', (event: FetchEvent) => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
@@ -35,7 +35,7 @@ self.addEventListener('fetch', event => {
 });
 
 // Activate event - remove old caches
-self.addEventListener('activate', event => {
+self.addEventListener('activate', (event: ExtendableEvent) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {

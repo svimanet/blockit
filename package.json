@@ -9,6 +9,7 @@
     "vite": "^5.2.3"
   },
   "dependencies": {
+    "@types/serviceworker": "^0.0.97",
     "pixi.js": "^7.4.0"
   },
   "scripts": {

@@ -8,7 +8,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: resolve(__dirname, 'index.html'),
-        sw: resolve(__dirname, 'src/pwa/sw.js'),
+        sw: resolve(__dirname, 'src/pwa/sw.ts'),
       },
       output: {
         chunkFileNames: '[name]-[hash].[ext]',
