@@ -10,7 +10,7 @@ interface nRFProps {
   app: Application;
   cellsize: number;
   padding: number;
-  figures: Figure[];
+  // figures: Figure[];
   pos: {
     x: number;
     y: number;
@@ -28,21 +28,15 @@ export const newRandomFigure = (props: nRFProps) => {
     app,
     cellsize,
     padding,
-    figures
+    // figures
   } = props;
   const { x, y } = pos;
   const shape = randomShape(shapes);
   const setter = setDragTarget;
   const figure = new Figure(shape, setter, app, cellsize, padding, shapes);
   figure.setPos(x,y);
-  figures.push(figure);
-}
-
-interface canFitNewShapeProps {
-  figure: Figure;
-  figures: Figure[];
-  cellsize: number;
-  padding: number;
+  return figure;
+  // figures.push(figure);
 }
 
 const collision = (figures: Figure[], figure: Figure): boolean => {
@@ -68,7 +62,7 @@ const collision = (figures: Figure[], figure: Figure): boolean => {
 }
 
 // Pretty print the grid
-function prettyPrintGrid(grid: Array<Array<number>>) {
+export function prettyPrintGrid(grid: Array<Array<number>>) {
   grid.forEach((row, i) => {
     let rowStr = `${i}: `;
     row.forEach(col => {
@@ -78,6 +72,13 @@ function prettyPrintGrid(grid: Array<Array<number>>) {
   });
 };
 
+
+interface canFitNewShapeProps {
+  figure: Figure;
+  figures: Figure[];
+  cellsize: number;
+  padding: number;
+}
 
 
 /**

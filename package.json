@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build": "bun run vite build",
-    "dev": "bun run vite build --watch",
+    "dev": "bun run vite dev",
     "preview": "bun run vite preview"
   }
 }

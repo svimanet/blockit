@@ -6,7 +6,7 @@ import { makeShapes } from './figure/shapes';
 import { renderGrid } from './utils/grid';
 import { Application, Text } from 'pixi.js';
 import { gameover } from './utils/gameover';
-import { setClickListener, setMoveListener } from './utils/mouseListeners';
+import { setPointerReleaseListener, setMoveListener } from './utils/mouseListeners';
 
 const gameContainer = document.getElementById('game') as HTMLDivElement;
 let width = gameContainer.clientWidth;
@@ -23,6 +23,7 @@ const canvasWidth = padding + gridSize + padding;
 const canvasHeight = canvasWidth*1.5;
 
 let figures: Figure[] = [];
+const getFigures = () => figures;
 const setFigures = (figs: Figure[]) => { figures = figs };
 const shapes = makeShapes(cellsize);
 const figureStartPos = {
@@ -45,24 +46,25 @@ let dragTarget: Figure | undefined;
 const setDragTarget = (target: Figure | undefined) => { dragTarget = target };
 app.stage.on('pointermove', (e) => setMoveListener(e, dragTarget));
 app.stage.on('pointerup', () => {
-  setClickListener({
+  setPointerReleaseListener({
     app, cellsize, padding,
-    figureStartPos, figures,
+    figureStartPos, getFigures,
     setFigures, dragTarget,
     setDragTarget, shapes,
   });
 });
 
 renderGrid(gridSize, cellsize, padding, app);
-newRandomFigure({
+const firstFig = newRandomFigure({
   pos: figureStartPos,
   shapes,
   setDragTarget,
   app,
   cellsize,
   padding,
-  figures,
 });
+setFigures([firstFig]);
+
 
 gameContainer.appendChild(app.view as HTMLCanvasElement);
 console.log('Game JS loaded.');

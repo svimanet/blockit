@@ -1,6 +1,5 @@
-import type { DisplayObject, Graphics } from "pixi.js";
-import type { FigureNode, Figure } from "../types";
-import type { Figure as Fig } from "../figure/figure";
+import type { DisplayObject } from "pixi.js";
+import type { Figure } from "../figure/figure";
 
 /**
  * Check for any horizontal/vertical line completions,
@@ -9,94 +8,74 @@ import type { Figure as Fig } from "../figure/figure";
  */
 export const checkLineCompletion = (
   cellsize: number,
-  sidepadding: number,
+  padding: number,
   figures: Figure[],
-): false | number => {
-  if (figures.length < 3) return false;
-
-  // TODO: maybe this should be global
-  const positions: number[] = [];
-  for (let x=0; x<=10; x++) {
-    positions.push((cellsize*x));
+  grid: number[][],
+): {
+  completed: false | number,
+  figures: Figure[]
+} => {
+  if (figures.length < 3) {
+    return { completed: false, figures };
   }
 
-  const map: {x:number,y:number,node:Graphics}[] = [];
-  positions.forEach((x:number, xi:number) => {
-    positions.forEach((y:number, yi:number) => {
-      figures.forEach((figure) => {
-        figure.container.children.forEach((node: Graphics) => {
-          const bounds = node.getBounds();
-          const xDiff = Math.abs((bounds.x - sidepadding) - x);
-          const yDiff = Math.abs((bounds.y - sidepadding) - y);
-          if (xDiff < 15 && yDiff < 15) {
-            map.push({
-              node: node,
-              x: xi,
-              y: yi,
-            })
-          }
-        });
-      });
-    });
+  const completeRows: number[] = [];
+  grid.forEach((row, y) => {
+    const completeRow = !row.includes(0);
+    if (completeRow) completeRows.push(y);
   });
 
-  const complete: {
-    rows:number[],
-    cols:number[]
-  } = {
-    rows:[],
-    cols:[]
-  };
-  const rowsCount: number[] = Array(10).fill(0);
-  const colsCount: number[] = Array(10).fill(0);
-  map.forEach((m) => {
-    rowsCount[m.y]++;
-    colsCount[m.x]++;
-  });
-
-  rowsCount.forEach((r:number, i:number) => {
-    if (r >= 10) { complete.rows.push(i); }
-  });
-  colsCount.forEach((c:number, i:number) => {
-    if (c >= 10) { complete.cols.push(i); }
-  });
-
-  let totalLinesComplete = 0;
-  const compRows = complete.rows;
-  const compCols = complete.cols;
-  const crLen = compRows.length;
-  const clLen = compCols.length;
-
-  if (crLen > 0 || clLen > 0) {
-    totalLinesComplete = clLen + crLen;
-    map.forEach((m) => {
-      if (compRows.includes(m.y)) {
-        m.node.destroy();
-      }
-      else if (compCols.includes(m.x)) {
-        m.node.destroy();
+  const completeCols: number[] = [];
+  grid.forEach((row, i) => {
+    let completeCol = true;
+    grid.forEach((rrow, j) => {
+      if (grid[j][i] === 0) {
+        completeCol = false;
       }
     });
-  }
-  return totalLinesComplete;
-}
 
-/**
- * look through store figures,
- * if they have not childrenn,
- * delete them
- * @param figures 
- */
-export const deleteEmptyFigures = (figures: Fig[]): Fig[] => {
-  const figs = figures.filter((figure) => {
-    const figureChildren = figure.container.children.length;
-    if (figureChildren < 1) {
-      figure.container.removeChildren();
-      figure.container.destroy();
-      return false;
+    if (completeCol) {
+      completeCols.push(i);
     }
-    return true;
   });
-  return figs;
-}
 
+  const figuresToDel: {fig:Figure,i:number}[] = [];
+  figures.forEach((fig, i) => {
+    const nodesToDel: DisplayObject[] = [];
+
+    fig.container.children.forEach((node: DisplayObject, i:number) => {
+      const bounds = node.getBounds();
+      const x = Math.round((bounds.left - padding)/cellsize);
+      const y = Math.round((bounds.top - padding)/cellsize);
+
+      if (completeRows.includes(y) || completeCols.includes(x)) {
+        nodesToDel.push(node);
+      }
+    });
+
+    nodesToDel.forEach((node) => {
+      node.removeFromParent();
+      node.removeAllListeners();
+      node.destroy();
+    });
+
+    if (fig.container.children.length === 0) {
+      figuresToDel.push({fig, i});
+    }
+  });
+
+  let newfigures:Array<Figure|undefined> = figures;
+  figuresToDel.forEach(({ fig, i }) => {
+    fig.container.removeAllListeners();
+    fig.container.removeChildren();
+    fig.container.destroy();
+    newfigures[i] = undefined;
+  });
+
+  const finalFigures: Figure[] = newfigures.filter(f => f !== undefined);
+
+  return ({
+    completed: (completeRows.length + completeCols.length),
+    figures: finalFigures
+  });
+}
