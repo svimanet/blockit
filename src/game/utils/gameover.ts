@@ -21,3 +21,5 @@ export const gameover = (app: Application) => {
   btn.onclick = () => location.reload();
   header.append(btn);
 }
+
+

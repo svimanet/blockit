@@ -1,4 +1,4 @@
-import type { Figure, FigureNode, Shape } from "../types";
+import type { FigureNode, Shape } from "../types";
 
 export const makeShapes = (cellsize: number): Record<Shape, FigureNode[]> => {
   const c1 = cellsize;
@@ -108,30 +108,4 @@ export const randomShape = (figures: Record<Shape, FigureNode[]>): Shape => {
   const shapes  = Object.keys(figures) as Shape[];
   const randShape = shapes[Math.floor(Math.random() * shapes.length)];
   return randShape;
-}
-
-/**
- * Check if an horizontal I2 can fit in the grid
- * @param grid 
- * @returns 
- */
-export const canFitI2 = (grid: number[][]): boolean => {
-  for (let x=0; x<10; x++) {
-    const row = grid[x];
-    let count = 0;
-    for (let y=0; y<10; y++) {
-      const col = row[y];
-      if (count >= 4) {
-        console.log(`found free slot after ${x}+${y} iterations`);
-        return true;
-      }
-      if (col === 0) count++;
-      else count = 0;
-    }
-  }
-  return false;
-};
-
-export const canFitFigureInGrid = (figure: Figure, figures: Figure[]) => {
-
 }

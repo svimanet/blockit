@@ -2,25 +2,22 @@
 import type { Application } from "pixi.js";
 import { Figure } from "./figure";
 import type { Shape, FigureNode } from '../types';
-import { canFitI2, randomShape } from "./shapes";
+import { randomShape } from "./shapes";
 
-interface nRFProps {
+/**
+ * Generate new figure to start with.
+ */
+export const newRandomFigure = (props: {
   shapes: Record<Shape, FigureNode[]>;
   setDragTarget: (target: Figure | undefined) => void;
   app: Application;
   cellsize: number;
   padding: number;
-  // figures: Figure[];
   pos: {
     x: number;
     y: number;
   };
-}
-
-/**
- * Generate new figure to start with
- */
-export const newRandomFigure = (props: nRFProps) => {
+}) => {
   const {
     pos,
     shapes,
@@ -28,7 +25,6 @@ export const newRandomFigure = (props: nRFProps) => {
     app,
     cellsize,
     padding,
-    // figures
   } = props;
   const { x, y } = pos;
   const shape = randomShape(shapes);
@@ -36,29 +32,6 @@ export const newRandomFigure = (props: nRFProps) => {
   const figure = new Figure(shape, setter, app, cellsize, padding, shapes);
   figure.setPos(x,y);
   return figure;
-  // figures.push(figure);
-}
-
-const collision = (figures: Figure[], figure: Figure): boolean => {
-  // For each other figure, check for collision
-  const figs = [...figures];
-  figs.pop();
-  return figs.some((fig) => {
-
-    // For each rect in This figure
-    return fig.container.children.some((node) => {
-
-      // For each rect in other fiure
-      return figure.container.children.some((otherNode) => {
-
-        // If a node in this figure collides with a node in the other figure, return true (Collides)
-        if (node.getBounds().intersects(otherNode.getBounds())) {
-          return true;
-        }
-        return false;
-      });
-    });
-  });
 }
 
 // Pretty print the grid
@@ -72,116 +45,116 @@ export function prettyPrintGrid(grid: Array<Array<number>>) {
   });
 };
 
+/**
+ * check if a fig fits in a certain grid pos.
+ * For every node in the figure,
+ * add x and y offset,
+ * then check if the node is oob, if so RETURN null
+ * or if the node is ontop of existing. if so RETURN false
+ * if none of the above, RETURN true, can fit.
+ * @param props 
+ * @returns true if fits, false if not, null if OOB.
+ */
+const figureFitsAtPos = (props: {
+  figure: {x:number, y:number}[];
+  grid: number[][];
+  x: number;
+  y: number;
+}): boolean | null => {
+  let canFit: boolean | null  = true;
+  const { figure, grid, x, y } = props;
 
-interface canFitNewShapeProps {
-  figure: Figure;
-  figures: Figure[];
-  cellsize: number;
-  padding: number;
-}
+  for (let i=0; i<figure.length; i++) {
+    const node = figure[i];
+    const nodeX = (node.x + x);
+    const nodeY = (node.y + y);
+
+    if ( // Is Out of Bouds (OOB)
+      nodeX < 0 || nodeY < 0
+      || nodeX >= grid.length
+      || nodeY >= grid.length
+    ) {
+      canFit = null;
+      break;
+    }
+
+    // Is overlapping existing
+    const doesOverlap = grid[nodeY][nodeX] === 1;
+    if (doesOverlap) {
+      canFit = false;
+      break;
+    }
+  };
+
+  // If not OOB or overlapping, then i sits
+  return canFit;
+};
 
 
 /**
  * Check if the grid can fit the next figure to place.
  * If not, the game ends.
  */
-export const canFitNewShape = (prpos: canFitNewShapeProps) => {
+export const isRoomForNewFigureInGrid = (prpos: {
+  figure: Figure;
+  cellsize: number;
+  padding: number;
+  grid: number[][];
+}) => {
   const {
     figure,
-    figures: figs,
     cellsize,
-    padding
+    padding,
+    grid
   } = prpos;
 
-
-  const figures = [...figs];
-  figures.pop();
-  if (figs.length < 3) return true;
-
-  const grid: number[][] = [];
-  for(let x=0; x<10; x++) {
-    const row = [];
-    for(let y=0; y< 10; y++) {
-      row.push(0);
-    }
-    grid.push(row);
-  }
-
-  figures.forEach(fig => {
-    fig.container.children.forEach((node) => {
-      const bounds = node.getBounds();
-      const x = Math.round((bounds.left - padding)/cellsize);
-      const y = Math.round((bounds.top - padding)/cellsize);
-      grid[y][x] = 1;
-    });
-  });
-
-  const binaryFigureNodes:{x:number,y:number}[] = [];
+  // Make simpler representation of the figure we are checking
+  let simplefigure:{x:number,y:number}[] = [];
   figure.container.children.forEach((node) => {
     const bounds = node.getBounds();
     const x = Math.round((bounds.left - padding)/cellsize);
     const y = Math.round((bounds.top - padding)/cellsize);
-    binaryFigureNodes.push({x,y});
+    simplefigure.push({x,y});
   });
 
-  const bx: number[] = binaryFigureNodes.map(b => b.x);
-  const by = binaryFigureNodes.map(b => b.y);
-  const lowX = Math.min(...bx);
-  const lowY = Math.min(...by);
-  const lowXdiff = Math.round(Math.abs(lowX - 0));
-  const lowYdiff = Math.round(Math.abs(lowY - 0));
+  // account for Y offset (new figs are place below grid).
+  // Find lowest Y, set it to zero, and subtract it from the rest,
+  const simpleYs = [...simplefigure].map(sf => sf.y);
+  const lowestY = Math.min(...simpleYs);
+  // then do the same for X
+  const simpleXs = [...simplefigure].map(sf => sf.x);
+  const lowestX = Math.min(...simpleXs);
+  // then subtract the lowest val from each coord in each node
+  simplefigure = [...simplefigure].map(sf => ({
+    x: sf.x - lowestX, y: sf.y - lowestY
+  }));
 
-  binaryFigureNodes.forEach((b) => {
-    b.x -= lowXdiff;
-    b.y -= lowYdiff
-  });
+  let falses = 0;
+  let truths = 0;
+  let oobs = 0;
 
-  // Assume figure can fit unless proven otherwise
-  let canFit = true;
+  // grid[][] - outer/root list = rows, height, y
+  for (let y=0; y<10; y++) {
+    // For every row 
+    for (let x=0; x<10; x++) {
 
-  for (let x=0; x<10; x++) {
-    binaryFigureNodes.forEach(b => {b.x += 1;});
-    for (let y=0; y<10; y++) {
-      binaryFigureNodes.forEach(b => {b.y += 1;});
+      const canfit = figureFitsAtPos({
+        figure: simplefigure,
+        grid, x, y
+      });
 
-      // Check if placing the figure at (gridX, gridY) is possible
-      for (let i = 0; i < binaryFigureNodes.length; i++) {
-        const nodeX = binaryFigureNodes[i].x + x;
-        const nodeY = binaryFigureNodes[i].y + y;
-
-        // Check if node is out of grid bounds
-        if (nodeX < 0 || nodeX >= grid.length || nodeY < 0 || nodeY >= grid[0].length) {
-          canFit = false; // Figure goes out of bounds
-          break;
-        }
-
-        // Check if the grid cell is occupied by an existing figure
-        if (grid[nodeY][nodeX] !== 0) {
-          canFit = false; // Figure overlaps with existing one
-          break;
-        }
-        canFit = true;
+      if (canfit) {
+        truths += 1;
       }
-
-      // If the figure can fit in this position, return true
-      if (canFit) {
-        return true;
+      else if (canfit === null) {
+        oobs += 1;
+      }
+      else {
+        falses += 1;
       }
     }
-
-    // Reset positions for next rox
-    const bx: number[] = binaryFigureNodes.map(b => b.x);
-    const by = binaryFigureNodes.map(b => b.y);
-    const lowX = Math.min(...bx);
-    const lowY = Math.min(...by);
-    const lowXdiff = Math.round(Math.abs(lowX - 0));
-    const lowYdiff = Math.round(Math.abs(lowY - 0));
-
-    binaryFigureNodes.forEach((b) => {
-      b.x -= lowXdiff;
-      b.y -= lowYdiff
-    });
   }
 
-  return canFit;
+  console.log(`total: ${falses+truths} | false: ${falses} | truths: ${truths} | oobs: ${oobs}`);
+  return truths > 0;
 }

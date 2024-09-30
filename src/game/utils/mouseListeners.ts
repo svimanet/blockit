@@ -2,7 +2,7 @@ import type { Application, DisplayObject, FederatedPointerEvent } from "pixi.js"
 import type { Figure } from "../figure/figure";
 import { checkLineCompletion } from "./lineCompletion";
 import { incrementScore } from "./score";
-import { canFitNewShape, newRandomFigure,  } from "../figure/utils";
+import { isRoomForNewFigureInGrid, newRandomFigure,  } from "../figure/utils";
 import type { FigureNode, Shape } from "../types";
 import { gameover } from "./gameover";
 
@@ -109,31 +109,29 @@ export const setPointerReleaseListener = (props: ClickProps) => {
         padding,
       });
 
+      const roomInGrid = isRoomForNewFigureInGrid({
+        figure: newFig,
+        cellsize,
+        padding,
+        grid
+      });
+
+      // If new figure cannot fit in grid ...
+      if (!roomInGrid) {
+        gameover(app);
+      }
+
       // If any rows were complete, then we might have deleted som figs // TODO: Refactor to more obvious
       // so set the new figures to be that which we got returned,
       // pluss the new figure.
       if (complete.completed) {
         setFigures([...complete.figures, newFig]);
-        console.log('figs len after', getFigures().length);
         incrementScore(complete.completed);
       }
       // Else, just set new figures to include the new one
       else {
         setFigures([...getFigures(), newFig]);
         incrementScore(1);
-      }
-
-      // If new figure cannot fit in grid ...
-      if (
-        !canFitNewShape({
-          figure: newFig,
-          figures: getFigures(),
-          cellsize,
-          padding
-        })
-      ) {
-        // Do ...
-        gameover(app);
       }
     }
   }
