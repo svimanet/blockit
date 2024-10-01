@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html style="background-color: #333;">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/public/manifest-Cj3s-Pxy.json">
+    <link rel="icon" type="image/png" href="./assets/favicon.png">
+    
+    <title>Gmae</title>
+    <script type="module" crossorigin src="/index-DGrs9Tm6.js"></script>
+    <link rel="stylesheet" crossorigin href="/public/index-D4NpJzS_.css">
+  </head>
+  <body>
+
+    <div id="header" role="banner">
+      <p><span id="score">0</span> Points</p>
+    </div>
+
+    <div id="game">
+    </div>
+
+    <!-- Register the service worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        console.log('ost');
+        navigator.serviceWorker.register('/sw.js')
+          .then(() => {
+            console.log('Service Worker registered successfully.');
+          })
+          .catch(error => {
+            console.log('Service Worker registration failed:', error);
+          });
+      }
+    </script>
+
+  </body>
+</html>
