@@ -1,4 +1,6 @@
 
+Play me: https://svimanet.github.io/blockit/
+
 2D grid-based arcade game.
 Goal is to place as many figures on the grid as possible before there is no more room.
 Complete vertical/horizontal lines are removed from the grid and gives points.

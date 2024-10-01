@@ -1,8 +1,8 @@
 {
   "name": "Blockit",
   "short_name": "Blockit",
-  "description": "Mine spel",
-  "start_url": "/",
+  "description": "gmae by svimanet",
+  "start_url": "/blockit/",
   "display": "standalone",
   "background_color": "#333333",
   "theme_color": "#333333",

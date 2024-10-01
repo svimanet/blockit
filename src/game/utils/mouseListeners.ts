@@ -135,8 +135,8 @@ export const setPointerReleaseListener = async (props: ClickProps) => {
         setFigures(finalFigures);
 
         // Increment score only if a line is complete. Modify score for each line.
-        let score = complete.nodesToDel.length;
-        let modifier = Math.round(score/10);
+        let score = complete.nodesToDel.length; // 10 x (num lines complete)
+        let modifier = 1 + (0.2 * ((score-10)/10));
         incrementScore(score * modifier);
       };
 

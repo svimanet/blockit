@@ -1,4 +1,4 @@
-import { Application, Color, Container, DisplayObject, FederatedPointerEvent, Graphics, type ColorSource } from 'pixi.js';
+import { Application, Color, Container, DisplayObject, FederatedPointerEvent, Graphics, Rectangle, type ColorSource } from 'pixi.js';
 import type { FigureNode, Shape } from '../types';
 // import { shapes } from './utils';
 
@@ -30,9 +30,6 @@ export class Figure implements Figure {
     this.color = 0;
     this.points = 0;
     this.shape = shape;
-    // TODO: Fix shapes. Was dependent on static grid/cell size.
-    // idk some math shit i cant think of rn
-    // this.nodes = 
     this.makeNodes(
       shapes[shape],
       this.container,
@@ -43,6 +40,17 @@ export class Figure implements Figure {
       x: this.container.x,
       y: this.container.y
     };
+
+    this.container.children.forEach((node) => {
+      const bounds = node.getBounds();
+      const rect = new Rectangle(bounds.x, bounds.y, bounds.height, bounds.width);
+      const padding = (rect.width/100)*50;
+      rect.height += padding;
+      rect.width += padding;
+      rect.x -= padding/2;
+      rect.y -= padding/2;
+      node.hitArea = rect;
+    });
 
     // Pointer down event, for setting this obj as global active drag target
     // TODO: Why is this done here, should probably be done outside
