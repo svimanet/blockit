@@ -12,21 +12,26 @@ export const checkLineCompletion = (
   figures: Figure[],
   grid: number[][],
 ): {
-  completed: false | number,
-  figures: Figure[]
+  nodesToDel: undefined | DisplayObject[],
 } => {
+
+  // Skip checks if less than 3 figures to check
   if (figures.length < 3) {
-    return { completed: false, figures };
+    return ({ 
+      nodesToDel: undefined,
+    });
   }
 
+  // Find complete rows ..
   const completeRows: number[] = [];
   grid.forEach((row, y) => {
     const completeRow = !row.includes(0);
     if (completeRow) completeRows.push(y);
   });
 
+  // Find complete cols ..
   const completeCols: number[] = [];
-  grid.forEach((row, i) => {
+  grid.forEach((_row, i) => {
     let completeCol = true;
     grid.forEach((rrow, j) => {
       if (grid[j][i] === 0) {
@@ -39,11 +44,10 @@ export const checkLineCompletion = (
     }
   });
 
-  const figuresToDel: {fig:Figure,i:number}[] = [];
-  figures.forEach((fig, i) => {
-    const nodesToDel: DisplayObject[] = [];
-
-    fig.container.children.forEach((node: DisplayObject, i:number) => {
+  // Map nodes from completed lines, to delete after
+  const nodesToDel: DisplayObject[] = [];
+  figures.forEach((fig) => {
+    fig.container.children.forEach((node: DisplayObject) => {
       const bounds = node.getBounds();
       const x = Math.round((bounds.left - padding)/cellsize);
       const y = Math.round((bounds.top - padding)/cellsize);
@@ -52,30 +56,7 @@ export const checkLineCompletion = (
         nodesToDel.push(node);
       }
     });
-
-    nodesToDel.forEach((node) => {
-      node.removeFromParent();
-      node.removeAllListeners();
-      node.destroy();
-    });
-
-    if (fig.container.children.length === 0) {
-      figuresToDel.push({fig, i});
-    }
   });
 
-  let newfigures:Array<Figure|undefined> = figures;
-  figuresToDel.forEach(({ fig, i }) => {
-    fig.container.removeAllListeners();
-    fig.container.removeChildren();
-    fig.container.destroy();
-    newfigures[i] = undefined;
-  });
-
-  const finalFigures: Figure[] = newfigures.filter(f => f !== undefined);
-
-  return ({
-    completed: (completeRows.length + completeCols.length),
-    figures: finalFigures
-  });
+  return ({nodesToDel});
 }

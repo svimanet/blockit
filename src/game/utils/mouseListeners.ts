@@ -62,7 +62,7 @@ interface ClickProps {
  * Most of the following checks require at least some figs.
  * @param props D
  */
-export const setPointerReleaseListener = (props: ClickProps) => {
+export const setPointerReleaseListener = async (props: ClickProps) => {
   const {
     app, cellsize, padding,
     figureStartPos, getFigures,
@@ -82,22 +82,63 @@ export const setPointerReleaseListener = (props: ClickProps) => {
 
     // If we actually manage to place anything
     if (placedFigure) {
-      const grid = makeGrid({
+      let grid = makeGrid({
         getFigures,
         cellsize,
         padding
       });
 
+
       // Check for any complete vertical/horizontal lines ..
-      const complete: {
-        completed: false | number;
-        figures: Figure[]; // new list of figures after potential deletion ... TODO: Refactor SinglePurpose
-      } = checkLineCompletion(
+      const figures = getFigures();
+      const complete = checkLineCompletion(
         cellsize,
         padding,
-        getFigures(),
+        figures,
         grid
       );
+
+      // Delte node, with delay. Used for animation when deleting lines.
+      const deleteNode = async (node: DisplayObject) => {
+        await new Promise(resolve => setTimeout(resolve, 50))
+        .then(() => {
+          node.removeFromParent();
+          node.removeAllListeners();
+          node.destroy();
+        });
+      };
+
+      // If any completed lines, we should also have nodes to delete.
+      if (complete.nodesToDel && complete.nodesToDel.length > 0) {
+        // await complete.nodesToDel.forEach(async (node) => {
+        for (const [i, node] of complete.nodesToDel.entries()) {
+          await deleteNode(node);
+        };
+
+        // For all figures again, check if any of them are now empty
+        const figuresToDel: { fig:Figure, i:number }[] = [];
+        figures.forEach((fig, i) => {
+          if (fig.container.children.length === 0) {
+            figuresToDel.push({fig, i});
+          }
+        });
+
+        // Then delete figures, and replace with undefined, to not fucking js array order
+        let newfigures:Array<Figure|undefined> = figures;
+        figuresToDel.forEach(({ fig, i }) => {
+          fig.container.removeAllListeners();
+          fig.container.removeChildren();
+          fig.container.destroy();
+          newfigures[i] = undefined;
+        });
+        const finalFigures: Figure[] = newfigures.filter(f => f !== undefined);
+        setFigures(finalFigures);
+
+        // Increment score only if a line is complete. Modify score for each line.
+        let score = complete.nodesToDel.length;
+        let modifier = Math.round(score/10);
+        incrementScore(score * modifier);
+      };
 
       // New Figure generation, ready to place a new one.
       const newFig = newRandomFigure({
@@ -107,6 +148,13 @@ export const setPointerReleaseListener = (props: ClickProps) => {
         app,
         cellsize,
         padding,
+      });
+
+      // Re-make grid after deleting shit.
+      grid = makeGrid({
+        getFigures,
+        cellsize,
+        padding
       });
 
       const roomInGrid = isRoomForNewFigureInGrid({
@@ -120,18 +168,8 @@ export const setPointerReleaseListener = (props: ClickProps) => {
       if (!roomInGrid) {
         gameover(app);
       }
-
-      // If any rows were complete, then we might have deleted som figs // TODO: Refactor to more obvious
-      // so set the new figures to be that which we got returned,
-      // pluss the new figure.
-      if (complete.completed) {
-        setFigures([...complete.figures, newFig]);
-        incrementScore(complete.completed);
-      }
-      // Else, just set new figures to include the new one
       else {
         setFigures([...getFigures(), newFig]);
-        incrementScore(1);
       }
     }
   }
