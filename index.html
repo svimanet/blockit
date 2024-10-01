@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="./src/pwa/manifest.json">
     <link rel="stylesheet" href="./src/css/style.css">
-    <link rel="icon" type="image/png" href="./assets/favicon.png">
+    <link rel="icon" type="image/png" href="./src/assets/favicon.png">
     <script type="module" src="./src/game/main.ts"></script>
     
     <title>Gmae</title>
@@ -21,8 +21,7 @@
     <!-- Register the service worker -->
     <script>
       if ('serviceWorker' in navigator) {
-        console.log('ost');
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register('/blockit/public/sw.js')
           .then(() => {
             console.log('Service Worker registered successfully.');
           })

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+  base: '/blockit/',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
@@ -13,9 +14,7 @@ export default defineConfig({
       output: {
         chunkFileNames: '[name]-[hash].[ext]',
         assetFileNames: (file) => {
-          if (file.name === 'favicon.png') {
-            return 'public/favicon.png'
-          }
+          console.log(file.name);
           return 'public/[name]-[hash].[ext]'
         },
         entryFileNames: (file) => {
