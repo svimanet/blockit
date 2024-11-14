@@ -50,9 +50,22 @@ body {
   cursor: pointer;
 }
 
+#game-container {
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1/1.75;
+  margin: 0 auto;
+}
+
+@media (max-aspect-ratio: 1/1.75) {
+  #game-container {
+    height: auto;
+    width: 100%;
+  }
+}
+
 #game {
   height: 100%;
-  display: flex;
 }
 
 canvas {

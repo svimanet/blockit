@@ -12,9 +12,6 @@ const gameContainer = document.getElementById('game') as HTMLDivElement;
 let width = gameContainer.clientWidth;
 const height = gameContainer.clientHeight;
 
-// Make sure height is up to the task of 175% width.
-if (height < width*1.5) width = height / 1.75;
-
 const numCells = 10;
 const padding = (width / 100) * 5;
 const cellsize = (width - (padding*2)) / 10;
@@ -35,6 +32,7 @@ const app = new Application({
   background: '#333333',
   height: canvasHeight,
   width: canvasWidth,
+  resizeTo: gameContainer
 });
 app.stage.eventMode = 'static';
 app.stage.hitArea = app.screen;
