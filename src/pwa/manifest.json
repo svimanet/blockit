@@ -1,7 +1,7 @@
 {
   "name": "Blockit",
   "short_name": "Blockit",
-  "description": "gmae by svimanet",
+  "description": "game by svimanet",
   "start_url": "/blockit/",
   "display": "standalone",
   "orientation": "portrait",

@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="./src/css/style.css">
     <link rel="icon" type="image/png" href="./src/assets/favicon.png">
     <script type="module" src="./src/game/main.ts"></script>
-    
-    <title>Gmae</title>
+    <script type="module" src="./src/pwa/pwasetup.ts"></script>
+    <title>Blockit</title>
   </head>
   <body>
 
@@ -19,19 +19,6 @@
       <div id="game">
       </div>
     </div>
-
-    <!-- Register the service worker -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/blockit/public/sw.js')
-          .then(() => {
-            console.log('Service Worker registered successfully.');
-          })
-          .catch(error => {
-            console.log('Service Worker registration failed:', error);
-          });
-      }
-    </script>
 
   </body>
 </html>

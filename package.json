@@ -15,7 +15,6 @@
   "scripts": {
     "dev": "bun run vite dev",
     "preview": "bun run vite preview",
-    "bootleg_ci": "rm -rf docs/* && mv dist/* docs/.",
-    "build": "bun run vite build && bun run bootleg_ci"
+    "build": "bun run vite build"
   }
 }

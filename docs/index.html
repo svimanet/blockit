@@ -2,12 +2,11 @@
 <html style="background-color: #333;">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
-    <link rel="manifest" href="/blockit/public/manifest-Br-Ueob6.json">
-    <link rel="icon" type="image/png" href="/blockit/public/favicon-COIrebrL.png">
-    
-    <title>Gmae</title>
-    <script type="module" crossorigin src="/blockit/index-jtUb41Zv.js"></script>
-    <link rel="stylesheet" crossorigin href="/blockit/public/index-B7aweD6I.css">
+    <link rel="manifest" href="/blockit/manifest.json">
+    <link rel="icon" type="image/png" href="/blockit/favicon.png">
+    <title>Blockit</title>
+    <script type="module" crossorigin src="/blockit/index.js"></script>
+    <link rel="stylesheet" crossorigin href="/blockit/index.css">
   </head>
   <body>
 
@@ -19,19 +18,6 @@
       <div id="game">
       </div>
     </div>
-
-    <!-- Register the service worker -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/blockit/public/sw.js')
-          .then(() => {
-            console.log('Service Worker registered successfully.');
-          })
-          .catch(error => {
-            console.log('Service Worker registration failed:', error);
-          });
-      }
-    </script>
 
   </body>
 </html>

@@ -1,12 +1,12 @@
-const CACHE_NAME = 'my-pwa-cache-v1';
+const CACHE_NAME = 'blockit-pwa-cache-v1';
+const baseurl = '/blockit'; // Assume GH pages
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/game.js',
-  '/manifest.json',
-  // '/images/icons/icon-192x192.png',
-  // '/images/icons/icon-512x512.png'
+  `${baseurl}/`,
+  `${baseurl}/index.html`,
+  `${baseurl}/style.css`,
+  `${baseurl}/game.js`,
+  `${baseurl}/favicon.png`,
+  `${baseurl}/manifest.json`,
 ];
 
 // Install event - cache static assets
