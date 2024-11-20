@@ -1,0 +1,40 @@
+name: Build and deploy
+run-name:  ${{ github.run_number }} ${{ github.ref }} ${{ github.workflow }}
+on: 
+  push:
+    branches: [$default-branch]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  pages: write      # to deploy to Pages
+  id-token: write   # to verify the deployment originates from an appropriate source
+jobs:
+  build-and-deploy:
+    runs-on: debian-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: oven-sh/setup-bun@v2
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Install deps
+        run: bun install --frozen-lockfile --production
+      - name: Run build script
+        run: bun run build --mode prod
+
+      - name: Deploy GitHub Pages
+        uses: actions/deploy-pages@v4.0.5
+
+      - name: Setup GH Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
