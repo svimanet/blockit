@@ -3,8 +3,8 @@ const baseurl = '/blockit'; // Assume GH pages
 const urlsToCache = [
   `${baseurl}/`,
   `${baseurl}/index.html`,
-  `${baseurl}/style.css`,
-  `${baseurl}/game.js`,
+  `${baseurl}/index.css`,
+  `${baseurl}/index.js`,
   `${baseurl}/favicon.png`,
   `${baseurl}/manifest.json`,
 ];
