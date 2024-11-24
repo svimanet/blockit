@@ -5,8 +5,8 @@ import { Figure } from './figure/figure';
 import { makeShapes } from './figure/shapes';
 import { renderGrid } from './utils/grid';
 import { Application, Text } from 'pixi.js';
-import { gameover } from './utils/gameover';
 import { setPointerReleaseListener, setMoveListener } from './utils/mouseListeners';
+import { hiscoresStorageSetup } from './utils/hiscores';
 
 const gameContainer = document.getElementById('game') as HTMLDivElement;
 let width = gameContainer.clientWidth;
@@ -61,6 +61,9 @@ const firstFig = newRandomFigure({
   cellsize,
   padding,
 });
+
+hiscoresStorageSetup();
+
 setFigures([firstFig]);
 
 

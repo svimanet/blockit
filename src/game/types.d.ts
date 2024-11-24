@@ -21,3 +21,8 @@ export type Shape =
   'L1' | 'L2' | 'L3' | 'L4' |
   'I1' | 'I2' | 
   'O';
+
+export interface Hiscore {
+  date: Date;
+  score: number;
+}

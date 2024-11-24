@@ -23,27 +23,31 @@ body {
   border-bottom: 1px solid #b19eda;
 }
 
+#header > * {
+  padding-left: 10px;
+  font-size: 1.5rem;
+  color: rgb(177, 158, 218);
+}
+
 #header p {
   margin-top: .5rem;
-  font-size: 1.25rem;
   font-family: monospace;
-  color: rgb(177, 158, 218);
+  font-family: monospace;
+  border: 1px solid transparent;
 }
 
 #header button {
   background: none;
-  color: black;
   font-weight: 400;
   font-family: monospace;
-  font-size: 1.5rem;
   border: 1px solid transparent; 
-  border-radius: 8px;
-  margin: 0 0 0 1rem;
-  text-shadow:
-  -1px -1px 0 #b19eda, /* top-left */
-    1px -1px 0 #b19eda, /* top-right */
-  -1px  1px 0 #b19eda, /* bottom-left */
-    1px  1px 0 #b19eda; /* bottom-right */
+}
+
+#header button {
+  background: radial-gradient(#433c52, transparent);
+}
+#header button:hover {
+  background: radial-gradient(#796c96, transparent);
 }
 
 #header button:hover {
@@ -72,6 +76,42 @@ canvas {
   margin: 0 auto;
 }
 
-#resetbtn {
-  padding: .25rem;
+button {
+  /* padding: .25rem; */
 }
+
+
+/* Hiscore table stuffs  */
+#hiscores-container {
+  position: absolute;
+  right: calc(50% - 150px);
+  top: calc(40% - 300px);
+  width: 300px;
+  height: 600px;
+  background: rgba( 50, 50, 50, 0.8);
+  overflow-y: auto;
+}
+
+table {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+tr {
+  display: flex;
+  padding: 5px;
+}
+
+tr > td:nth-child(2) {
+  font-weight: bold;
+}
+
+td, th {
+  margin: auto;
+  font-size: 1.25rem;
+  color: #b19eda;
+  font-family: monospace;
+}
+

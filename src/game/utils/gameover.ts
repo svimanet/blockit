@@ -1,4 +1,6 @@
 import { Application, Text as PixiText } from 'pixi.js';
+import { renderHiscoresTable } from './hiscores';
+import type { Hiscore } from '../types';
 
 export const gameover = (app: Application) => {
   const text = new PixiText('Game Over!', {
@@ -20,6 +22,23 @@ export const gameover = (app: Application) => {
   btn.setAttribute('id', 'btn');
   btn.onclick = () => location.reload();
   header.append(btn);
+
+  const hiscoresStorage = window.localStorage.getItem('hiscores') as string;
+  const hiscores = JSON.parse(hiscoresStorage) as Array<Hiscore>;
+  const scoreElement = document.getElementById('score') as HTMLSpanElement;
+  const score = scoreElement.innerText;
+
+
+  hiscores.push({
+    date: new Date(),
+    score: Number(score),
+  });
+
+  window.localStorage.setItem('hiscores', JSON.stringify(hiscores));
+  renderHiscoresTable();
+
+
+
 }
 
 
