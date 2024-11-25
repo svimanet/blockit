@@ -28,17 +28,14 @@ export const gameover = (app: Application) => {
   const scoreElement = document.getElementById('score') as HTMLSpanElement;
   const score = scoreElement.innerText;
 
-
   hiscores.push({
     date: new Date(),
     score: Number(score),
   });
 
   window.localStorage.setItem('hiscores', JSON.stringify(hiscores));
+
   renderHiscoresTable();
-
-
-
 }
 
 

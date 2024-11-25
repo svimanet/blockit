@@ -26,17 +26,17 @@ export const renderHiscoresTable = () => {
   const thScore = document.createElement('th');
   thScore.innerText = 'Score';
   tableHeaderRow.appendChild(thScore);
-  
+
   // For each row in Hiscores local storage list, 
   hiscores.forEach((row) => {
     console.log('row', row);
     const tableRow = document.createElement('tr');
     tableBody.appendChild(tableRow);
-    
+
     const tdDate = document.createElement('td');
     tdDate.innerText = `${new Date(row.date).toLocaleDateString()}`;
     tableRow.appendChild(tdDate)
-    
+
     const tdScore = document.createElement('td');
     tdScore.innerText = `${row.score}`;
     tableRow.appendChild(tdScore);
