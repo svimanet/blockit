@@ -102,16 +102,20 @@ table {
 }
 
 tr {
-  display: flex;
+  display:table;
   padding: 5px;
 }
 
+tr > td:nth-child(1) {
+  width: 50%;
+}
+
 tr > td:nth-child(2) {
+  width: 25%;
   font-weight: bold;
 }
 
 td, th {
-  margin: auto;
   font-size: 1.25rem;
   color: #b19eda;
   font-family: monospace;
