@@ -81,7 +81,8 @@ canvas {
 #hiscores-container {
   position: absolute;
   right: calc(50% - 150px);
-  top: calc(40% - 300px);
+  /* top placement relative to header height, accomodated for 1px border */
+  top: calc(3rem - 1px);
   width: 300px;
   max-height: 600px;
   min-height: 200px;
