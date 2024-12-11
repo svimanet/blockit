@@ -1,5 +1,17 @@
 import type { Hiscore } from "../types";
 
+/**
+ * Fetch and return hiscores table from local storage.
+ * Default sort by date.
+ * @returns hiscores json object
+ */
+const getHiscoresFromLocalStorage = (): Array<Hiscore> => {
+  const hiscoresStorage = window.localStorage.getItem('hiscores');
+  const hiscores = JSON.parse(hiscoresStorage as string) as unknown as Array<Hiscore>;
+  hiscores.sort((a: Hiscore, b: Hiscore) => (b.date < a.date ? -1 : b.date > a.date ? 1 : 0));
+  return hiscores;
+}
+
 export const renderHiscoresTable = () => {
   // Append new div on Document to contain hiscores
   const gameContainer = document.getElementById('game-container') as HTMLDivElement;
@@ -7,17 +19,14 @@ export const renderHiscoresTable = () => {
   hiscoresHtmlContainer.id = 'hiscores-container';
   gameContainer.appendChild(hiscoresHtmlContainer);
 
-  // Get hiscores from local storage, assume it to exist
-  const hiscoresStorage = window.localStorage.getItem('hiscores');
-  const hiscores = JSON.parse(hiscoresStorage as string) as unknown as Array<Hiscore>;
-  hiscores.sort((a: Hiscore, b: Hiscore) => (b.date < a.date ? -1 : b.date > a.date ? 1 : 0));
+  const hiscores = getHiscoresFromLocalStorage();
 
   // Append new table to container
-  const tableBody = document.createElement('table');
-  hiscoresHtmlContainer.appendChild(tableBody);
+  const table = document.createElement('table');
+  hiscoresHtmlContainer.appendChild(table);
 
   const tableHeaderRow = document.createElement('tr');
-  tableBody.appendChild(tableHeaderRow)
+  table.appendChild(tableHeaderRow)
 
   const thDate = document.createElement('th');
   thDate.innerText = 'Date';
@@ -26,12 +35,14 @@ export const renderHiscoresTable = () => {
   const thScore = document.createElement('th');
   thScore.innerText = 'Score';
   tableHeaderRow.appendChild(thScore);
+  thScore.addEventListener('click', sortByScoreDescending);
+  thScore.role = 'button';
 
   // For each row in Hiscores local storage list, 
   hiscores.forEach((row) => {
     console.log('row', row);
     const tableRow = document.createElement('tr');
-    tableBody.appendChild(tableRow);
+    table.appendChild(tableRow);
 
     const tdDate = document.createElement('td');
     tdDate.innerText = `${new Date(row.date).toLocaleDateString()}`;
@@ -45,6 +56,37 @@ export const renderHiscoresTable = () => {
   const hiscoresBtn = document.getElementById('hiscores-btn') as HTMLButtonElement;
   hiscoresBtn.removeEventListener('click', openHiscoresEvent);
   hiscoresBtn.addEventListener('click', closeHiscoresEvent);
+}
+
+const sortByScoreDescending = () => {
+  const scores = getHiscoresFromLocalStorage();
+  const table = document.getElementsByTagName('table')[0];
+  const tableRows = Array.from(document.getElementsByTagName('tr'));
+
+  // Remove table header from elements-to-be-remove, and remove the current onclick
+  const tableHeader = tableRows.shift();
+  tableHeader?.removeEventListener('click', () => '');
+
+  // Remove existing table data rows
+  tableRows.forEach((row) => row.remove());
+
+  // sort hiscores by score, descending only for now. I Don't think ascending is interesting.
+  scores.sort((a: Hiscore, b: Hiscore) => (b.score < a.score ? -1 : b.score > a.score ? 1 : 0));
+
+  // Re-populate table rows from sorted data
+  scores.forEach((row) => {
+    console.log('row', row);
+    const tableRow = document.createElement('tr');
+    table.appendChild(tableRow);
+
+    const tdDate = document.createElement('td');
+    tdDate.innerText = `${new Date(row.date).toLocaleDateString()}`;
+    tableRow.appendChild(tdDate)
+
+    const tdScore = document.createElement('td');
+    tdScore.innerText = `${row.score}`;
+    tableRow.appendChild(tdScore);
+  });
 }
 
 const openHiscoresEvent = () => {

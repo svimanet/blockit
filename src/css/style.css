@@ -125,3 +125,7 @@ td, th {
   font-family: monospace;
 }
 
+th[role=button]:hover {
+  cursor: pointer;
+  color: white;
+}
