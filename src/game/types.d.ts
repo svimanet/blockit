@@ -22,7 +22,3 @@ export type Shape =
   'I1' | 'I2' | 
   'O';
 
-export interface Hiscore {
-  date: Date;
-  score: number;
-}

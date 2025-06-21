@@ -187,7 +187,6 @@ export class Figure implements Figure {
 
           // If a node in this figure collides with a node in the other figure, return true (Collides)
           if (node.getBounds().intersects(otherNode.getBounds())) {
-            console.log('COLLISION');
             return true;
           }
           return false;

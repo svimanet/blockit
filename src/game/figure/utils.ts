@@ -41,7 +41,6 @@ export function prettyPrintGrid(grid: Array<Array<number>>) {
     row.forEach(col => {
       rowStr += `${col} `;
     });
-    console.log(rowStr);
   });
 };
 
@@ -155,6 +154,5 @@ export const isRoomForNewFigureInGrid = (prpos: {
     }
   }
 
-  console.log(`total: ${falses+truths} | false: ${falses} | truths: ${truths} | oobs: ${oobs}`);
   return truths > 0;
 }
