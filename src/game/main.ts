@@ -1,5 +1,3 @@
-console.log('Game JS loading.');
-
 import { newRandomFigure } from './figure/utils';
 import { Figure } from './figure/figure';
 import { makeShapes } from './figure/shapes';
@@ -37,7 +35,6 @@ const app = new Application({
 app.stage.eventMode = 'static';
 app.stage.hitArea = app.screen;
 
-
 // Target getter and setter for mouse event. Only one at a time on global scope.
 // Setter supplied to Figure constructor for container onclick target switching.
 let dragTarget: Figure | undefined; 
@@ -66,8 +63,5 @@ hiscoresStorageSetup();
 
 setFigures([firstFig]);
 
-
 gameContainer.appendChild(app.view as HTMLCanvasElement);
-console.log('Game JS loaded.');
 
-// gameover(app);
