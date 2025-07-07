@@ -6,7 +6,6 @@
 export interface Figure {
   color: number;
   points: number;
-  // nodes: Graphics[];
   container: Container;
 }
 

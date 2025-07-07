@@ -2,10 +2,10 @@ import type { DisplayObject } from "pixi.js";
 import type { Figure } from "../figure/figure";
 
 /**
- * Check for any horizontal/vertical line completions,
- * delete said completed rows/columns
- * @returns 
- */
+* Check for any horizontal/vertical line completions,
+* delete said completed rows/columns
+* @returns 
+*/
 export const checkLineCompletion = (
   cellsize: number,
   padding: number,
@@ -60,3 +60,17 @@ export const checkLineCompletion = (
 
   return ({nodesToDel});
 }
+
+/*
+  Delete a single figure-node, with delay.
+  Activated when a horizontal/vertical line is filled.
+  Delay for animation effect.
+*/
+export const deleteNode = async (node: DisplayObject) => {
+  await new Promise(resolve => setTimeout(resolve, 50))
+  .then(() => {
+    node.removeFromParent();
+    node.removeAllListeners();
+    node.destroy();
+  });
+};

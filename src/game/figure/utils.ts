@@ -8,10 +8,49 @@ import { randomShape } from "./shapes";
  * Generate new figure to start with.
  */
 export const newRandomFigure = (props: {
-  shapes: Record<Shape, FigureNode[]>;
+  getShapes: () => Record<Shape, FigureNode[]>;
   setDragTarget: (target: Figure | undefined) => void;
   app: Application;
   cellsize: number;
+  padding: number;
+  pos: { x: number; y: number; };
+  isNext?: boolean;
+  nextIndicatorPos?: { x: number; y: number; };
+}) => {
+  const {
+    pos,
+    getShapes,
+    setDragTarget,
+    app,
+    cellsize,
+    padding,
+    isNext
+  } = props;
+
+  const { x, y } = pos;
+  const shape = randomShape(getShapes());
+  const setter = setDragTarget;
+
+  const figure = new Figure(
+    shape,
+    setter,
+    app,
+    cellsize,
+    padding,
+    getShapes,
+    isNext
+  );
+
+  figure.setPos(x,y);
+  return figure;
+}
+
+export const newFigureFromShape = (props: {
+  getShapes: () => Record<Shape, FigureNode[]>;
+  setDragTarget: (target: Figure | undefined) => void;
+  app: Application;
+  cellsize: number;
+  shape: Shape;
   padding: number;
   pos: {
     x: number;
@@ -20,29 +59,30 @@ export const newRandomFigure = (props: {
 }) => {
   const {
     pos,
-    shapes,
+    getShapes,
     setDragTarget,
     app,
     cellsize,
     padding,
+    shape
   } = props;
+
   const { x, y } = pos;
-  const shape = randomShape(shapes);
   const setter = setDragTarget;
-  const figure = new Figure(shape, setter, app, cellsize, padding, shapes);
+
+  const figure = new Figure(
+    shape,
+    setter,
+    app,
+    cellsize,
+    padding,
+    getShapes,
+  );
+
   figure.setPos(x,y);
   return figure;
-}
-
-// Pretty print the grid
-export function prettyPrintGrid(grid: Array<Array<number>>) {
-  grid.forEach((row, i) => {
-    let rowStr = `${i}: `;
-    row.forEach(col => {
-      rowStr += `${col} `;
-    });
-  });
 };
+
 
 /**
  * check if a fig fits in a certain grid pos.
