@@ -1,5 +1,5 @@
-import type { Hiscore } from './hiscores.types';
-import { getHiscoresFromLocalStorage } from './localstorage.utils.ts';
+import type { Hiscore } from './types';
+import { getHiscoresFromLocalStorage } from './localstorage.ts';
 
 export const renderHiscoresTable = () => {
   // Append new div on Document to contain hiscores

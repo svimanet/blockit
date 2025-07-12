@@ -1,9 +1,9 @@
 import { newRandomFigure } from './figure/utils';
 import { Figure } from './figure/figure';
 import { makeShapes } from './figure/shapes';
-import { renderGrid } from './utils/grid';
+import { renderGrid } from './grid';
 import { Application } from 'pixi.js';
-import { setPointerReleaseListener, setMoveListener } from './utils/mouseListeners';
+import { setPointerReleaseListener, setMoveListener } from './eventListeners';
 import { hiscoresStorageSetup } from './../hiscores';
 
 const gameContainer = document.getElementById('game') as HTMLDivElement;

@@ -1,48 +1,13 @@
 import type { Application, DisplayObject, FederatedPointerEvent } from "pixi.js";
-import type { Figure } from "../figure/figure";
-import { checkLineCompletion, deleteNode } from "./lineCompletion";
-import { incrementScore } from "./score";
-import { isRoomForNewFigureInGrid, newFigureFromShape, newRandomFigure,  } from "../figure/utils";
-import type { FigureNode, Shape } from "../types";
+import type { Figure } from "./figure/figure";
+import { checkLineCompletion, deleteNode, incrementScore } from "./lineCompletion";
+import { isRoomForNewFigureInGrid, newFigureFromShape, newRandomFigure,  } from "./figure/utils";
+import type { FigureNode, Shape } from "./types";
 import { gameover } from "./gameover";
+import { makeGrid } from "./grid";
 
 export const setMoveListener = (e: FederatedPointerEvent, dragTarget: Figure | undefined) => {
   if (dragTarget) dragTarget.move(e);
-};
-
-/**
-* Make, populate, and return,
-* a 2D representation of the map as a grid.
-* Used for various placement checking.
-* @param props 
-* @returns 
-*/
-export const makeGrid = (props: {
-  getFigures: () => Figure[];
-  cellsize: number;
-  padding: number;
-}): number[][] => {
-  const { getFigures, cellsize, padding } = props;
-  const grid: number[][] = [];
-  const numCellsInGrid = 10;
-  for(let x=0; x<numCellsInGrid; x++) {
-    const row = [];
-    for(let y=0; y<numCellsInGrid; y++) {
-      row.push(0);
-    }
-    grid.push(row);
-  }
-  
-  getFigures().forEach(fig => {
-    fig.container.children.forEach((node: DisplayObject) => {
-      const bounds = node.getBounds();
-      const x = Math.round((bounds.left - padding)/cellsize);
-      const y = Math.round((bounds.top - padding)/cellsize);
-      grid[y][x] = 1;
-    });
-  });
-  
-  return grid;
 };
 
 interface ClickProps {

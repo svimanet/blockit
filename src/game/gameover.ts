@@ -1,6 +1,6 @@
 import { Application, Text as PixiText } from 'pixi.js';
-import { renderHiscoresTable } from '../../hiscores';
-import type { Hiscore } from '../types';
+import { renderHiscoresTable } from '../hiscores';
+import type { Hiscore } from '../hiscores';
 
 export const gameover = (app: Application) => {
   const text = new PixiText('Game Over!', {

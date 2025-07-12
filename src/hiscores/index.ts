@@ -1,5 +1,5 @@
 
-export * from './localstorage.utils.ts';
+export * from './localstorage.ts';
 export * from './table.ts';
-export type * from './hiscores.types.d.ts';
+export type * from './types';
 
