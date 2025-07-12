@@ -24,7 +24,7 @@ body {
 }
 
 #header > * {
-  padding-left: 10px;
+  padding: 0 5px;
   font-size: 1.25rem;
   color: rgb(177, 158, 218);
 }
@@ -41,21 +41,16 @@ body {
   font-family: monospace;
   border: 1px solid transparent; 
 }
-
-#header button {
+#header button:active {
   font-weight: 600;
 }
-
-#header button:active {
-  font-weight: 400;
-}
-
-#header button:hover {
+#header button:focus-visible {
+  border: 1px solid white;
   color: white;
 }
-
 #header button:hover {
   cursor: pointer;
+  color: white;
 }
 
 #game-container {

@@ -1,3 +1,4 @@
+import type { Hiscore } from './hiscores.types';
 import { getHiscoresFromLocalStorage } from './localstorage.utils.ts';
 
 export const renderHiscoresTable = () => {
@@ -21,9 +22,10 @@ export const renderHiscoresTable = () => {
   tableHeaderRow.appendChild(thDate);
 
   const thScore = document.createElement('th');
-  thScore.innerText = 'Score';
+  thScore.innerText = 'Score-';
+  thScore.id = 'thscore'
   tableHeaderRow.appendChild(thScore);
-  thScore.addEventListener('click', sortByScoreDescending);
+  thScore.addEventListener('click', () => sortByScore());
   thScore.role = 'button';
 
   // For each row in Hiscores local storage list,
@@ -46,22 +48,39 @@ export const renderHiscoresTable = () => {
   hiscoresBtn.addEventListener('click', closeHiscoresEvent);
 }
 
-const sortByScoreDescending = () => {
+const sortByScore = () => {
   const scores = getHiscoresFromLocalStorage();
   const table = document.getElementsByTagName('table')[0];
   const tableRows = Array.from(document.getElementsByTagName('tr'));
-
-  // Remove table header from elements-to-be-remove, and remove the current onclick
-  const tableHeader = tableRows.shift();
-  tableHeader?.removeEventListener('click', () => '');
-
-  // Remove existing table data rows
+  tableRows.shift();
   tableRows.forEach((row) => row.remove());
 
-  // sort hiscores by score, descending only for now. I Don't think ascending is interesting.
-  scores.sort((a: Hiscore, b: Hiscore) => (b.score < a.score ? -1 : b.score > a.score ? 1 : 0));
+  const up = '↑';
+  const dn = '↓';
+  let asc = false;
 
-  // Re-populate table rows from sorted data
+  const thScore = document.getElementById('thscore');
+  if (thScore) {
+    asc = !thScore.innerText.includes(dn);
+    if (asc) {
+      thScore.innerText = 'Score'+dn;
+    } else {
+      thScore.innerText = 'Score'+up;
+    }
+  }
+
+  if (asc) {
+    scores.sort(
+      (a: Hiscore, b: Hiscore) =>
+        (a.score < b.score ? -1 : a.score > b.score ? 1 : 0)
+    );
+  } else {
+    scores.sort(
+      (a: Hiscore, b: Hiscore) =>
+        (b.score < a.score ? -1 : b.score > a.score ? 1 : 0)
+    );
+  }
+
   scores.forEach((row) => {
     const tableRow = document.createElement('tr');
     table.appendChild(tableRow);
@@ -78,11 +97,25 @@ const sortByScoreDescending = () => {
 
 const openHiscoresEvent = () => {
   renderHiscoresTable();
+  const body = document.body;
+  setTimeout(() => {
+    body.addEventListener('click', bodyListenerCloseHiscores);
+  }, 0);
 }
 
 const closeHiscoresEvent = () => {
+  const body = document.body;
+  body.removeEventListener('click', bodyListenerCloseHiscores);
   removeHiscoresTable();
 }
+
+const bodyListenerCloseHiscores = (e: MouseEvent) => {
+  const modal = document.getElementById('hiscores-container');
+  if (modal && modal.contains(e.target as Node)) {
+    return;
+  }
+  closeHiscoresEvent();
+};
 
 export const removeHiscoresTable = () => {
   const hiscoresHtmlContainer = document.getElementById('hiscores-container') as HTMLDivElement;
@@ -93,7 +126,6 @@ export const removeHiscoresTable = () => {
 }
 
 export const hiscoresStorageSetup = () => {
-
   const hiscoresBtn = document.getElementById('hiscores-btn') as HTMLButtonElement;
   hiscoresBtn.addEventListener('click', openHiscoresEvent);
 
